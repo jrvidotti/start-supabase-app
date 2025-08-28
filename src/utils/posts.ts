@@ -1,98 +1,157 @@
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
-import { db, posts, type Post } from "~/db";
+import type { Post } from "~/db";
 import { getSupabaseServerClient } from "~/utils/supabase";
 
 export type PostType = Post;
 
 export const fetchPost = createServerFn({ method: "GET" })
-  .validator((d: string) => d)
-  .handler(async ({ data: postId }) => {
-    console.info(`Fetching post with id ${postId}...`);
-    try {
-      const [post] = await db
-        .select()
-        .from(posts)
-        .where(eq(posts.id, postId))
-        .limit(1);
+	.validator((d: string) => d)
+	.handler(async ({ data: postId }) => {
+		console.info(`Fetching post with id ${postId}...`);
+		const supabase = getSupabaseServerClient();
 
-      if (!post) {
-        throw notFound();
-      }
+		const { data: post, error } = await supabase
+			.from("posts")
+			.select("*")
+			.eq("id", postId)
+			.single();
 
-      return post;
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  });
+		if (error) {
+			console.log("Error fetching post:", error);
+			throw new Error("Error fetching post");
+		}
 
-export const fetchPosts = createServerFn({ method: "GET" }).handler(
-  async ({ context }) => {
-    const supabase = getSupabaseServerClient();
-    const { data } = await supabase.auth.getUser();
+		if (!post) {
+			throw notFound();
+		}
 
-    if (!data.user) {
-      throw new Error("Unauthorized: User not authenticated");
-    }
+		return post;
+	});
 
-    console.info("Fetching posts...");
-    console.log("context", context);
-    console.log("user", data.user);
-    return await db.select().from(posts).orderBy(posts.createdAt).limit(10);
-  }
+export const fetchMyPosts = createServerFn({ method: "GET" }).handler(
+	async () => {
+		const supabase = getSupabaseServerClient();
+		const { data: userData } = await supabase.auth.getUser();
+
+		const { data, error } = await supabase
+			.from("posts")
+			.select("*")
+			.eq("user_id", userData?.user?.id)
+			.order("created_at", { ascending: false })
+			.limit(10);
+
+		if (error) {
+			console.error("Error fetching posts:", error);
+			throw new Error("Error fetching posts");
+		}
+
+		return data;
+	},
+);
+
+export const fetchPublicPosts = createServerFn({ method: "GET" }).handler(
+	async () => {
+		const supabase = getSupabaseServerClient();
+
+		const { data, error } = await supabase
+			.from("posts")
+			.select("*")
+			.eq("status", "published")
+			.order("created_at", { ascending: false })
+			.limit(10);
+
+		if (error) {
+			console.error("Error fetching posts:", error);
+			throw new Error("Error fetching posts");
+		}
+
+		return data;
+	},
 );
 
 export const createPost = createServerFn({ method: "POST" })
-  .validator((d: { title: string; body?: string; userId?: string }) => d)
-  .handler(async ({ data }) => {
-    console.info("Creating new post...");
-    const [newPost] = await db
-      .insert(posts)
-      .values({
-        title: data.title,
-        body: data.body,
-        userId: data.userId,
-      })
-      .returning();
+	.validator((d: { title: string; body?: string; status?: string }) => d)
+	.handler(async ({ data }) => {
+		console.info("Creating new post...");
+		const supabase = getSupabaseServerClient();
+		const { data: userData } = await supabase.auth.getUser();
 
-    return newPost;
-  });
+		const { data: newPost, error } = await supabase
+			.from("posts")
+			.insert({
+				title: data.title,
+				body: data.body,
+				user_id: userData?.user?.id,
+				status: data.status || "draft",
+			})
+			.select()
+			.single();
+
+		if (error) {
+			console.error("Error creating post:", error);
+			throw new Error("Error creating post");
+		}
+
+		return newPost;
+	});
 
 export const updatePost = createServerFn({ method: "POST" })
-  .validator((d: { id: string; title?: string; body?: string }) => d)
-  .handler(async ({ data }) => {
-    console.info(`Updating post with id ${data.id}...`);
-    const [updatedPost] = await db
-      .update(posts)
-      .set({
-        title: data.title,
-        body: data.body,
-        updatedAt: new Date(),
-      })
-      .where(eq(posts.id, data.id))
-      .returning();
+	.validator(
+		(d: { id: string; title?: string; body?: string; status?: string }) => d,
+	)
+	.handler(async ({ data }) => {
+		console.info(`Updating post with id ${data.id}...`);
+		const supabase = getSupabaseServerClient();
 
-    if (!updatedPost) {
-      throw notFound();
-    }
+		const updateData: Record<string, string> = {
+			updated_at: new Date().toISOString(),
+		};
 
-    return updatedPost;
-  });
+		if (data.title !== undefined) updateData.title = data.title;
+		if (data.body !== undefined) updateData.body = data.body;
+		if (data.status !== undefined) updateData.status = data.status;
+
+		const { data: updatedPost, error } = await supabase
+			.from("posts")
+			.update(updateData)
+			.eq("id", data.id)
+			.select()
+			.single();
+
+		if (error) {
+			console.error("Error updating post:", error);
+			throw new Error("Error updating post");
+		}
+
+		if (!updatedPost) {
+			throw notFound();
+		}
+
+		return updatedPost;
+	});
 
 export const deletePost = createServerFn({ method: "POST" })
-  .validator((d: string) => d)
-  .handler(async ({ data: postId }) => {
-    console.info(`Deleting post with id ${postId}...`);
-    const [deletedPost] = await db
-      .delete(posts)
-      .where(eq(posts.id, postId))
-      .returning();
+	.validator((d: string) => d)
+	.handler(async ({ data: postId }) => {
+		console.info(`Deleting post with id ${postId}...`);
+		const supabase = getSupabaseServerClient();
 
-    if (!deletedPost) {
-      throw notFound();
-    }
+		const { data: deletedPost, error } = await supabase
+			.from("posts")
+			.delete()
+			.eq("id", postId)
+			.select()
+			.single();
 
-    return { success: true };
-  });
+		if (error) {
+			console.error("Error deleting post:", error);
+			throw new Error("Error deleting post");
+		}
+
+		if (!deletedPost) {
+			throw notFound();
+		}
+
+		return { success: true };
+	});

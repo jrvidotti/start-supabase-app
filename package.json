@@ -8,6 +8,7 @@
 		"dev": "vite dev",
 		"build": "vite build && tsc --noEmit",
 		"start": "vite start",
+		"biome:fix": "biome format --fix && biome check --fix --unsafe --diagnostic-level=error",
 		"db:generate": "drizzle-kit generate",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",

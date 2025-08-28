@@ -9,30 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as LogoutRouteImport } from './routes/logout'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthedPostsRouteImport } from './routes/_authed/posts'
-import { Route as AuthedPostsIndexRouteImport } from './routes/_authed/posts.index'
-import { Route as AuthedPostsPostIdRouteImport } from './routes/_authed/posts.$postId'
+import { Route as AuthedMyPostsRouteImport } from './routes/_authed/my-posts'
+import { Route as AuthSignupSuccessRouteImport } from './routes/_auth/signup-success'
+import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
+import { Route as AuthLogoutRouteImport } from './routes/_auth/logout'
+import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as AuthedMyPostsIndexRouteImport } from './routes/_authed/my-posts.index'
+import { Route as AuthedMyPostsPostIdRouteImport } from './routes/_authed/my-posts.$postId'
+import { Route as AuthAuthCallbackRouteImport } from './routes/_auth/auth.callback'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogoutRoute = LogoutRouteImport.update({
-  id: '/logout',
-  path: '/logout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
@@ -42,49 +29,80 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedPostsRoute = AuthedPostsRouteImport.update({
-  id: '/posts',
-  path: '/posts',
+const AuthedMyPostsRoute = AuthedMyPostsRouteImport.update({
+  id: '/my-posts',
+  path: '/my-posts',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedPostsIndexRoute = AuthedPostsIndexRouteImport.update({
+const AuthSignupSuccessRoute = AuthSignupSuccessRouteImport.update({
+  id: '/_auth/signup-success',
+  path: '/signup-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: '/_auth/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLogoutRoute = AuthLogoutRouteImport.update({
+  id: '/_auth/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/_auth/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedMyPostsIndexRoute = AuthedMyPostsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthedPostsRoute,
+  getParentRoute: () => AuthedMyPostsRoute,
 } as any)
-const AuthedPostsPostIdRoute = AuthedPostsPostIdRouteImport.update({
+const AuthedMyPostsPostIdRoute = AuthedMyPostsPostIdRouteImport.update({
   id: '/$postId',
   path: '/$postId',
-  getParentRoute: () => AuthedPostsRoute,
+  getParentRoute: () => AuthedMyPostsRoute,
+} as any)
+const AuthAuthCallbackRoute = AuthAuthCallbackRouteImport.update({
+  id: '/_auth/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/logout': typeof LogoutRoute
-  '/signup': typeof SignupRoute
-  '/posts': typeof AuthedPostsRouteWithChildren
-  '/posts/$postId': typeof AuthedPostsPostIdRoute
-  '/posts/': typeof AuthedPostsIndexRoute
+  '/login': typeof AuthLoginRoute
+  '/logout': typeof AuthLogoutRoute
+  '/signup': typeof AuthSignupRoute
+  '/signup-success': typeof AuthSignupSuccessRoute
+  '/my-posts': typeof AuthedMyPostsRouteWithChildren
+  '/auth/callback': typeof AuthAuthCallbackRoute
+  '/my-posts/$postId': typeof AuthedMyPostsPostIdRoute
+  '/my-posts/': typeof AuthedMyPostsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/logout': typeof LogoutRoute
-  '/signup': typeof SignupRoute
-  '/posts/$postId': typeof AuthedPostsPostIdRoute
-  '/posts': typeof AuthedPostsIndexRoute
+  '/login': typeof AuthLoginRoute
+  '/logout': typeof AuthLogoutRoute
+  '/signup': typeof AuthSignupRoute
+  '/signup-success': typeof AuthSignupSuccessRoute
+  '/auth/callback': typeof AuthAuthCallbackRoute
+  '/my-posts/$postId': typeof AuthedMyPostsPostIdRoute
+  '/my-posts': typeof AuthedMyPostsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
-  '/login': typeof LoginRoute
-  '/logout': typeof LogoutRoute
-  '/signup': typeof SignupRoute
-  '/_authed/posts': typeof AuthedPostsRouteWithChildren
-  '/_authed/posts/$postId': typeof AuthedPostsPostIdRoute
-  '/_authed/posts/': typeof AuthedPostsIndexRoute
+  '/_auth/login': typeof AuthLoginRoute
+  '/_auth/logout': typeof AuthLogoutRoute
+  '/_auth/signup': typeof AuthSignupRoute
+  '/_auth/signup-success': typeof AuthSignupSuccessRoute
+  '/_authed/my-posts': typeof AuthedMyPostsRouteWithChildren
+  '/_auth/auth/callback': typeof AuthAuthCallbackRoute
+  '/_authed/my-posts/$postId': typeof AuthedMyPostsPostIdRoute
+  '/_authed/my-posts/': typeof AuthedMyPostsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -93,54 +111,47 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/signup'
-    | '/posts'
-    | '/posts/$postId'
-    | '/posts/'
+    | '/signup-success'
+    | '/my-posts'
+    | '/auth/callback'
+    | '/my-posts/$postId'
+    | '/my-posts/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/logout' | '/signup' | '/posts/$postId' | '/posts'
+  to:
+    | '/'
+    | '/login'
+    | '/logout'
+    | '/signup'
+    | '/signup-success'
+    | '/auth/callback'
+    | '/my-posts/$postId'
+    | '/my-posts'
   id:
     | '__root__'
     | '/'
     | '/_authed'
-    | '/login'
-    | '/logout'
-    | '/signup'
-    | '/_authed/posts'
-    | '/_authed/posts/$postId'
-    | '/_authed/posts/'
+    | '/_auth/login'
+    | '/_auth/logout'
+    | '/_auth/signup'
+    | '/_auth/signup-success'
+    | '/_authed/my-posts'
+    | '/_auth/auth/callback'
+    | '/_authed/my-posts/$postId'
+    | '/_authed/my-posts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
-  LoginRoute: typeof LoginRoute
-  LogoutRoute: typeof LogoutRoute
-  SignupRoute: typeof SignupRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthLogoutRoute: typeof AuthLogoutRoute
+  AuthSignupRoute: typeof AuthSignupRoute
+  AuthSignupSuccessRoute: typeof AuthSignupSuccessRoute
+  AuthAuthCallbackRoute: typeof AuthAuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logout': {
-      id: '/logout'
-      path: '/logout'
-      fullPath: '/logout'
-      preLoaderRoute: typeof LogoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authed': {
       id: '/_authed'
       path: ''
@@ -155,50 +166,85 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed/posts': {
-      id: '/_authed/posts'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof AuthedPostsRouteImport
+    '/_authed/my-posts': {
+      id: '/_authed/my-posts'
+      path: '/my-posts'
+      fullPath: '/my-posts'
+      preLoaderRoute: typeof AuthedMyPostsRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/posts/': {
-      id: '/_authed/posts/'
-      path: '/'
-      fullPath: '/posts/'
-      preLoaderRoute: typeof AuthedPostsIndexRouteImport
-      parentRoute: typeof AuthedPostsRoute
+    '/_auth/signup-success': {
+      id: '/_auth/signup-success'
+      path: '/signup-success'
+      fullPath: '/signup-success'
+      preLoaderRoute: typeof AuthSignupSuccessRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authed/posts/$postId': {
-      id: '/_authed/posts/$postId'
+    '/_auth/signup': {
+      id: '/_auth/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/logout': {
+      id: '/_auth/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof AuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/my-posts/': {
+      id: '/_authed/my-posts/'
+      path: '/'
+      fullPath: '/my-posts/'
+      preLoaderRoute: typeof AuthedMyPostsIndexRouteImport
+      parentRoute: typeof AuthedMyPostsRoute
+    }
+    '/_authed/my-posts/$postId': {
+      id: '/_authed/my-posts/$postId'
       path: '/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof AuthedPostsPostIdRouteImport
-      parentRoute: typeof AuthedPostsRoute
+      fullPath: '/my-posts/$postId'
+      preLoaderRoute: typeof AuthedMyPostsPostIdRouteImport
+      parentRoute: typeof AuthedMyPostsRoute
+    }
+    '/_auth/auth/callback': {
+      id: '/_auth/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthAuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AuthedPostsRouteChildren {
-  AuthedPostsPostIdRoute: typeof AuthedPostsPostIdRoute
-  AuthedPostsIndexRoute: typeof AuthedPostsIndexRoute
+interface AuthedMyPostsRouteChildren {
+  AuthedMyPostsPostIdRoute: typeof AuthedMyPostsPostIdRoute
+  AuthedMyPostsIndexRoute: typeof AuthedMyPostsIndexRoute
 }
 
-const AuthedPostsRouteChildren: AuthedPostsRouteChildren = {
-  AuthedPostsPostIdRoute: AuthedPostsPostIdRoute,
-  AuthedPostsIndexRoute: AuthedPostsIndexRoute,
+const AuthedMyPostsRouteChildren: AuthedMyPostsRouteChildren = {
+  AuthedMyPostsPostIdRoute: AuthedMyPostsPostIdRoute,
+  AuthedMyPostsIndexRoute: AuthedMyPostsIndexRoute,
 }
 
-const AuthedPostsRouteWithChildren = AuthedPostsRoute._addFileChildren(
-  AuthedPostsRouteChildren,
+const AuthedMyPostsRouteWithChildren = AuthedMyPostsRoute._addFileChildren(
+  AuthedMyPostsRouteChildren,
 )
 
 interface AuthedRouteChildren {
-  AuthedPostsRoute: typeof AuthedPostsRouteWithChildren
+  AuthedMyPostsRoute: typeof AuthedMyPostsRouteWithChildren
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedPostsRoute: AuthedPostsRouteWithChildren,
+  AuthedMyPostsRoute: AuthedMyPostsRouteWithChildren,
 }
 
 const AuthedRouteWithChildren =
@@ -207,9 +253,11 @@ const AuthedRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
-  LoginRoute: LoginRoute,
-  LogoutRoute: LogoutRoute,
-  SignupRoute: SignupRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthLogoutRoute: AuthLogoutRoute,
+  AuthSignupRoute: AuthSignupRoute,
+  AuthSignupSuccessRoute: AuthSignupSuccessRoute,
+  AuthAuthCallbackRoute: AuthAuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
