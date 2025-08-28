@@ -51,6 +51,16 @@ export function PostForm({
 
 	const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
+	// Update form data when initialData changes (when switching between posts)
+	React.useEffect(() => {
+		setFormData({
+			title: initialData.title || "",
+			body: initialData.body || "",
+			status: initialData.status || "draft",
+			tags: initialData.tags || [],
+		});
+	}, [initialData.title, initialData.body, initialData.status, initialData.tags]);
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!formData.title.trim()) {

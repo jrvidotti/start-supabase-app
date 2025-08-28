@@ -55,6 +55,7 @@ function PostComponent() {
 
 	return (
 		<PostForm
+			key={post.id}
 			title="Edit Post"
 			backLink="/my-posts"
 			backLinkText="Back to My Posts"
