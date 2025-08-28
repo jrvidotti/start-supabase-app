@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import * as React from "react";
+import { TagsInput } from "./TagsInput";
 
 export interface PostFormData {
 	title: string;
 	body: string;
 	status: "draft" | "published" | "archived";
+	tags: string[];
 }
 
 interface PostFormProps {
@@ -44,7 +46,9 @@ export function PostForm({
 		title: initialData.title || "",
 		body: initialData.body || "",
 		status: initialData.status || "draft",
+		tags: initialData.tags || [],
 	});
+
 	const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -56,6 +60,7 @@ export function PostForm({
 			title: formData.title.trim(),
 			body: formData.body.trim(),
 			status: formData.status,
+			tags: formData.tags,
 		});
 	};
 
@@ -103,6 +108,17 @@ export function PostForm({
 						rows={6}
 						className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
 						placeholder="Enter post content..."
+					/>
+				</div>
+
+				<div>
+					<label htmlFor="tags" className="block text-sm font-medium mb-2">
+						Tags
+					</label>
+					<TagsInput
+						value={formData.tags}
+						onChange={(tags) => setFormData({ ...formData, tags })}
+						placeholder="Add tags..."
 					/>
 				</div>
 

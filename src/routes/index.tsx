@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { TagsList } from "~/components/TagsList";
 import { fetchPublicPosts } from "~/utils/posts";
 
 export const Route = createFileRoute("/")({
@@ -37,9 +38,12 @@ function Home() {
 									: post.body}
 							</p>
 						)}
-						<p className="text-sm text-gray-500 dark:text-gray-400">
-							📅 {new Date(post.created_at).toLocaleDateString("en-US")}
-						</p>
+						<div className="flex items-center justify-between">
+							<TagsList tags={post.tags || []} />
+							<p className="text-sm text-gray-500 dark:text-gray-400">
+								📅 {new Date(post.created_at).toLocaleDateString("en-US")}
+							</p>
+						</div>
 					</Link>
 				))}
 			</div>

@@ -23,6 +23,7 @@ function NewPostComponent() {
 				title: data.title,
 				body: data.body || undefined,
 				status: data.status,
+				tags: data.tags,
 			},
 		});
 	};

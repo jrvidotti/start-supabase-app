@@ -4,6 +4,7 @@ import { NotFound } from "~/components/NotFound";
 import { PostForm, type PostFormData } from "~/components/PostForm";
 import { useMutation } from "~/hooks/useMutation";
 import { fetchPost, updatePost, deletePost } from "~/utils/posts";
+import type { Tag } from "~/db";
 
 export const Route = createFileRoute("/_authed/my-posts/$postId")({
 	loader: ({ params: { postId } }) => fetchPost({ data: postId }),
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/_authed/my-posts/$postId")({
 	},
 });
 
-export function PostErrorComponent({ error }: ErrorComponentProps) {
+function PostErrorComponent({ error }: ErrorComponentProps) {
 	return <ErrorComponent error={error} />;
 }
 
@@ -43,6 +44,7 @@ function PostComponent() {
 				title: data.title,
 				body: data.body || undefined,
 				status: data.status,
+				tags: data.tags,
 			},
 		});
 	};
@@ -60,6 +62,7 @@ function PostComponent() {
 				title: post.title,
 				body: post.body || "",
 				status: post.status,
+				tags: post.tags?.map((tag: Tag) => tag.name) || [],
 			}}
 			submitButtonText="Save Changes"
 			onSubmit={handleSubmit}

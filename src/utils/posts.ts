@@ -1,6 +1,6 @@
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import type { Post } from "~/db";
+import type { Post, PostWithTags } from "~/db";
 import { getSupabaseServerClient } from "~/utils/supabase";
 
 export type PostType = Post;
@@ -13,7 +13,12 @@ export const fetchPost = createServerFn({ method: "GET" })
 
 		const { data: post, error } = await supabase
 			.from("posts")
-			.select("*")
+			.select(`
+				*,
+				posts_tags (
+					tags (*)
+				)
+			`)
 			.eq("id", postId)
 			.single();
 
@@ -26,7 +31,8 @@ export const fetchPost = createServerFn({ method: "GET" })
 			throw notFound();
 		}
 
-		return post;
+		const tags = post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [];
+		return { ...post, tags } as PostWithTags;
 	});
 
 export const fetchMyPosts = createServerFn({ method: "GET" }).handler(
@@ -36,7 +42,12 @@ export const fetchMyPosts = createServerFn({ method: "GET" }).handler(
 
 		const { data, error } = await supabase
 			.from("posts")
-			.select("*")
+			.select(`
+				*,
+				posts_tags (
+					tags (*)
+				)
+			`)
 			.eq("user_id", userData?.user?.id)
 			.order("created_at", { ascending: false })
 			.limit(10);
@@ -46,7 +57,10 @@ export const fetchMyPosts = createServerFn({ method: "GET" }).handler(
 			throw new Error("Error fetching posts");
 		}
 
-		return data;
+		return data?.map(post => ({
+			...post,
+			tags: post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || []
+		})) || [] as PostWithTags[];
 	},
 );
 
@@ -56,7 +70,12 @@ export const fetchPublicPosts = createServerFn({ method: "GET" }).handler(
 
 		const { data, error } = await supabase
 			.from("posts")
-			.select("*")
+			.select(`
+				*,
+				posts_tags (
+					tags (*)
+				)
+			`)
 			.eq("status", "published")
 			.order("created_at", { ascending: false })
 			.limit(10);
@@ -66,12 +85,15 @@ export const fetchPublicPosts = createServerFn({ method: "GET" }).handler(
 			throw new Error("Error fetching posts");
 		}
 
-		return data;
+		return data?.map(post => ({
+			...post,
+			tags: post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || []
+		})) || [] as PostWithTags[];
 	},
 );
 
 export const createPost = createServerFn({ method: "POST" })
-	.validator((d: { title: string; body?: string; status?: string }) => d)
+	.validator((d: { title: string; body?: string; status?: string; tags?: string[] }) => d)
 	.handler(async ({ data }) => {
 		console.info("Creating new post...");
 		const supabase = getSupabaseServerClient();
@@ -93,12 +115,56 @@ export const createPost = createServerFn({ method: "POST" })
 			throw new Error("Error creating post");
 		}
 
+		if (data.tags && data.tags.length > 0) {
+			const tagPromises = data.tags.map(async (tagName) => {
+				const slug = tagName
+					.toLowerCase()
+					.trim()
+					.replace(/[^\w\s-]/g, "")
+					.replace(/[\s_-]+/g, "-")
+					.replace(/^-+|-+$/g, "");
+
+				const { data: existingTag } = await supabase
+					.from("tags")
+					.select("*")
+					.eq("name", tagName.trim())
+					.single();
+
+				if (existingTag) {
+					return existingTag;
+				}
+
+				const { data: newTag } = await supabase
+					.from("tags")
+					.insert({
+						name: tagName.trim(),
+						slug,
+					})
+					.select()
+					.single();
+
+				return newTag;
+			});
+
+			const tags = await Promise.all(tagPromises);
+			const validTags = tags.filter(Boolean);
+
+			if (validTags.length > 0) {
+				const postTagsToInsert = validTags.map((tag) => ({
+					post_id: newPost.id,
+					tag_id: tag.id,
+				}));
+
+				await supabase.from("posts_tags").insert(postTagsToInsert);
+			}
+		}
+
 		return newPost;
 	});
 
 export const updatePost = createServerFn({ method: "POST" })
 	.validator(
-		(d: { id: string; title?: string; body?: string; status?: string }) => d,
+		(d: { id: string; title?: string; body?: string; status?: string; tags?: string[] }) => d,
 	)
 	.handler(async ({ data }) => {
 		console.info(`Updating post with id ${data.id}...`);
@@ -126,6 +192,54 @@ export const updatePost = createServerFn({ method: "POST" })
 
 		if (!updatedPost) {
 			throw notFound();
+		}
+
+		if (data.tags !== undefined) {
+			await supabase.from("posts_tags").delete().eq("post_id", data.id);
+
+			if (data.tags.length > 0) {
+				const tagPromises = data.tags.map(async (tagName) => {
+					const slug = tagName
+						.toLowerCase()
+						.trim()
+						.replace(/[^\w\s-]/g, "")
+						.replace(/[\s_-]+/g, "-")
+						.replace(/^-+|-+$/g, "");
+
+					const { data: existingTag } = await supabase
+						.from("tags")
+						.select("*")
+						.eq("name", tagName.trim())
+						.single();
+
+					if (existingTag) {
+						return existingTag;
+					}
+
+					const { data: newTag } = await supabase
+						.from("tags")
+						.insert({
+							name: tagName.trim(),
+							slug,
+						})
+						.select()
+						.single();
+
+					return newTag;
+				});
+
+				const tags = await Promise.all(tagPromises);
+				const validTags = tags.filter(Boolean);
+
+				if (validTags.length > 0) {
+					const postTagsToInsert = validTags.map((tag) => ({
+						post_id: data.id,
+						tag_id: tag.id,
+					}));
+
+					await supabase.from("posts_tags").insert(postTagsToInsert);
+				}
+			}
 		}
 
 		return updatedPost;

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { TagsList } from "~/components/TagsList";
 import { fetchMyPosts } from "../../utils/posts";
 
 export const Route = createFileRoute("/_authed/my-posts")({
@@ -21,19 +22,23 @@ function PostsComponent() {
 						+ New Post
 					</Link>
 				</div>
-				<ul className="list-disc pl-4">
+				<ul className="space-y-2">
 					{posts.map((post) => {
 						return (
-							<li key={post.id} className="whitespace-nowrap">
+							<li key={post.id} className="border rounded-lg p-3">
 								<Link
 									to="/my-posts/$postId"
 									params={{
 										postId: post.id,
 									}}
-									className="block py-1 text-blue-800 hover:text-blue-600"
+									className="block text-blue-800 hover:text-blue-600"
 									activeProps={{ className: "text-black font-bold" }}
 								>
-									<div>{post.title.substring(0, 20)}</div>
+									<div className="font-medium mb-1">{post.title}</div>
+									<div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+										{post.status} • {new Date(post.created_at).toLocaleDateString("en-US")}
+									</div>
+									<TagsList tags={post.tags || []} className="mb-1" />
 								</Link>
 							</li>
 						);
