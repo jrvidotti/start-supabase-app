@@ -12,12 +12,12 @@ function PostsComponent() {
 	// const context = Route.useRouteContext();
 
 	return (
-		<div className="p-2 flex gap-2">
-			<div className="flex flex-col">
+		<div className="flex h-full">
+			<div className="w-80 flex-shrink-0 p-4 border-r border-gray-200 dark:border-gray-700">
 				<div className="mb-4">
 					<Link
 						to="/my-posts/new"
-						className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+						className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium w-full text-center"
 					>
 						+ New Post
 					</Link>
@@ -45,8 +45,9 @@ function PostsComponent() {
 					})}
 				</ul>
 			</div>
-			<hr />
-			<Outlet />
+			<div className="flex-1">
+				<Outlet />
+			</div>
 			{/* <pre>{JSON.stringify(context)}</pre> */}
 		</div>
 	);
