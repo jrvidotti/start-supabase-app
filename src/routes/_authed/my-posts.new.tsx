@@ -24,6 +24,7 @@ function NewPostComponent() {
         body: data.body || undefined,
         status: data.status,
         tags: data.tags,
+        featured_image: data.featured_image,
       },
     });
   };

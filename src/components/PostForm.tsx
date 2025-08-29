@@ -1,11 +1,14 @@
 import * as React from "react";
 import { TagsInput } from "./TagsInput";
+import { supabase } from "~/utils/supabase-client";
+import { Route } from "~/routes/__root";
 
 export interface PostFormData {
   title: string;
   body: string;
   status: "draft" | "published" | "archived";
   tags: string[];
+  featured_image?: string;
 }
 
 interface PostFormProps {
@@ -37,14 +40,20 @@ export function PostForm({
   deleteError,
   title,
 }: PostFormProps) {
+  const { user } = Route.useRouteContext();
   const [formData, setFormData] = React.useState<PostFormData>({
     title: initialData.title || "",
     body: initialData.body || "",
     status: initialData.status || "draft",
     tags: initialData.tags || [],
+    featured_image: initialData.featured_image || "",
   });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = React.useState<string>("");
+  const [imageUploading, setImageUploading] = React.useState(false);
+  const [imageError, setImageError] = React.useState<string>("");
 
   // Update form data when initialData changes (when switching between posts)
   React.useEffect(() => {
@@ -53,24 +62,144 @@ export function PostForm({
       body: initialData.body || "",
       status: initialData.status || "draft",
       tags: initialData.tags || [],
+      featured_image: initialData.featured_image || "",
     });
+
+    // Set preview URL for existing image
+    if (initialData.featured_image) {
+      setPreviewUrl(initialData.featured_image);
+    } else {
+      setPreviewUrl("");
+    }
+
+    // Clear file selection when switching posts
+    setSelectedFile(null);
+    setImageError("");
   }, [
     initialData.title,
     initialData.body,
     initialData.status,
     initialData.tags,
+    initialData.featured_image,
   ]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      setImageError(
+        "Invalid file type. Only JPEG, PNG, WebP and GIF images are allowed."
+      );
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5242880) {
+      setImageError("File size too large. Maximum size is 5MB.");
+      return;
+    }
+
+    setSelectedFile(file);
+    setImageError("");
+
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        setPreviewUrl(e.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedFile(null);
+    setPreviewUrl("");
+    setFormData({ ...formData, featured_image: "" });
+    setImageError("");
+
+    // Clear file input
+    const fileInput = document.getElementById(
+      "featured_image"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim()) {
       return;
     }
+
+    let imageUrl = formData.featured_image || "";
+
+    // Upload new image if selected
+    if (selectedFile) {
+      setImageUploading(true);
+      setImageError("");
+
+      try {
+        // Get user ID from auth context
+        const userId = user?.id;
+        if (!userId) {
+          throw new Error("User not authenticated");
+        }
+
+        // Generate unique filename
+        const timestamp = Date.now();
+        const fileName = selectedFile.name;
+        const fullFileName = `${userId}/${timestamp}-${fileName}`;
+
+        console.log("Uploading image...");
+
+        // Upload directly to Supabase storage
+        const { error } = await supabase.storage
+          .from("post-images")
+          .upload(fullFileName, selectedFile, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (error) {
+          console.log("Error uploading image:", error);
+          throw new Error(error.message);
+        }
+
+        // Get public URL
+        const { data: publicUrlData } = supabase.storage
+          .from("post-images")
+          .getPublicUrl(fullFileName);
+
+        imageUrl = publicUrlData.publicUrl;
+      } catch (error) {
+        setImageError(
+          error instanceof Error ? error.message : "Failed to upload image"
+        );
+        setImageUploading(false);
+        return;
+      }
+
+      setImageUploading(false);
+    }
+
     onSubmit({
       title: formData.title.trim(),
       body: formData.body.trim(),
       status: formData.status,
       tags: formData.tags,
+      featured_image: imageUrl,
     });
   };
 
@@ -129,6 +258,60 @@ export function PostForm({
         </div>
 
         <div>
+          <label
+            htmlFor="featured_image"
+            className="block text-sm font-medium mb-2"
+          >
+            Featured Image
+          </label>
+
+          {previewUrl ? (
+            <div className="mb-4">
+              <div className="relative inline-block">
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="w-48 h-32 object-cover rounded-lg border"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700"
+                  title="Remove image"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <input
+            id="featured_image"
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            onChange={handleFileSelect}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
+            disabled={imageUploading}
+          />
+
+          <p className="text-sm text-gray-500 mt-1">
+            Supported formats: JPEG, PNG, WebP, GIF. Maximum size: 5MB.
+          </p>
+
+          {imageError && (
+            <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+              {imageError}
+            </div>
+          )}
+
+          {imageUploading && (
+            <div className="mt-2 p-2 bg-blue-100 border border-blue-400 text-blue-700 rounded text-sm">
+              Uploading image...
+            </div>
+          )}
+        </div>
+
+        <div>
           <label htmlFor="status" className="block text-sm font-medium mb-2">
             Status
           </label>
@@ -152,10 +335,14 @@ export function PostForm({
         <div className="flex gap-3 pt-4">
           <button
             type="submit"
-            disabled={isSubmitting || !formData.title.trim()}
+            disabled={isSubmitting || !formData.title.trim() || imageUploading}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Saving..." : submitButtonText}
+            {imageUploading
+              ? "Uploading..."
+              : isSubmitting
+                ? "Saving..."
+                : submitButtonText}
           </button>
 
           {onCancel && (

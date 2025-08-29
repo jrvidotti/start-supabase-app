@@ -24,6 +24,7 @@ export const posts = pgTable(
     body: text("body"),
     user_id: uuid("user_id"),
     status: post_status("status").default("draft").notNull(),
+    featured_image: text("featured_image"),
     created_at: timestamp("created_at").defaultNow().notNull(),
     updated_at: timestamp("updated_at").defaultNow().notNull(),
   },

@@ -1,6 +1,6 @@
 # TanStack Start + Supabase + Drizzle Blog Application
 
-A modern, full-stack blog platform demonstrating the power of TypeScript-first development with cutting-edge technologies. This demo application showcases authentication, content management, and real-time data operations with complete type safety.
+A little demo based on (Tanstack Start Supabase Basic Example)[https://github.com/tanstack/router/tree/main/examples/react/start-supabase-basic]. Using Drizzle for database schema management.
 
 ## 🚀 Demo Features
 
@@ -13,10 +13,12 @@ A modern, full-stack blog platform demonstrating the power of TypeScript-first d
 - **Server-side Data Fetching** - Optimized post retrieval
 - **Client-side Data Fetching** - Real-time tag search
 - **Database Migrations** - Version-controlled schema changes
-
-### Future Roadmap
 - **User Profiles** - Extended user information and customization
 - **Image Upload** - Media management and retrieval
+
+### Future Roadmap
+- **Shadcn UI** - Enhanced UI components
+- **Google Sign-in** - Enhanced authentication experience
 - **Rich Text Editor** - Enhanced content creation experience
 - **Post Search** - Full-text search capabilities
 - **Social Features** - Comments, likes, and user interactions
@@ -153,8 +155,8 @@ Advanced tag input with search capabilities
 
 Create a `.env.local` file with:
 ```env
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 DATABASE_URL=your_postgresql_connection_string
 ```
 

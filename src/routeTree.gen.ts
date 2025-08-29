@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as AuthedProfileRouteImport } from './routes/_authed/profile'
 import { Route as AuthedMyPostsRouteImport } from './routes/_authed/my-posts'
 import { Route as AuthSignupSuccessRouteImport } from './routes/_auth/signup-success'
@@ -29,6 +30,11 @@ const AuthedRoute = AuthedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsPostIdRoute = PostsPostIdRouteImport.update({
+  id: '/posts/$postId',
+  path: '/posts/$postId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedProfileRoute = AuthedProfileRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/signup-success': typeof AuthSignupSuccessRoute
   '/my-posts': typeof AuthedMyPostsRouteWithChildren
   '/profile': typeof AuthedProfileRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/auth/callback': typeof AuthAuthCallbackRoute
   '/my-posts/$postId': typeof AuthedMyPostsPostIdRoute
   '/my-posts/new': typeof AuthedMyPostsNewRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/signup': typeof AuthSignupRoute
   '/signup-success': typeof AuthSignupSuccessRoute
   '/profile': typeof AuthedProfileRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/auth/callback': typeof AuthAuthCallbackRoute
   '/my-posts/$postId': typeof AuthedMyPostsPostIdRoute
   '/my-posts/new': typeof AuthedMyPostsNewRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/_auth/signup-success': typeof AuthSignupSuccessRoute
   '/_authed/my-posts': typeof AuthedMyPostsRouteWithChildren
   '/_authed/profile': typeof AuthedProfileRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/_auth/auth/callback': typeof AuthAuthCallbackRoute
   '/_authed/my-posts/$postId': typeof AuthedMyPostsPostIdRoute
   '/_authed/my-posts/new': typeof AuthedMyPostsNewRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/signup-success'
     | '/my-posts'
     | '/profile'
+    | '/posts/$postId'
     | '/auth/callback'
     | '/my-posts/$postId'
     | '/my-posts/new'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/signup-success'
     | '/profile'
+    | '/posts/$postId'
     | '/auth/callback'
     | '/my-posts/$postId'
     | '/my-posts/new'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/_auth/signup-success'
     | '/_authed/my-posts'
     | '/_authed/profile'
+    | '/posts/$postId'
     | '/_auth/auth/callback'
     | '/_authed/my-posts/$postId'
     | '/_authed/my-posts/new'
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   AuthLogoutRoute: typeof AuthLogoutRoute
   AuthSignupRoute: typeof AuthSignupRoute
   AuthSignupSuccessRoute: typeof AuthSignupSuccessRoute
+  PostsPostIdRoute: typeof PostsPostIdRoute
   AuthAuthCallbackRoute: typeof AuthAuthCallbackRoute
 }
 
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/posts/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/profile': {
@@ -299,6 +319,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLogoutRoute: AuthLogoutRoute,
   AuthSignupRoute: AuthSignupRoute,
   AuthSignupSuccessRoute: AuthSignupSuccessRoute,
+  PostsPostIdRoute: PostsPostIdRoute,
   AuthAuthCallbackRoute: AuthAuthCallbackRoute,
 }
 export const routeTree = rootRouteImport

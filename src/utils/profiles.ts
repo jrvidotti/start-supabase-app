@@ -5,7 +5,6 @@ import { getSupabaseServerClient } from "~/utils/supabase";
 export const getProfile = createServerFn({ method: "GET" })
   .validator((d: string) => d)
   .handler(async ({ data: userId }) => {
-    console.info(`Fetching profile for user ${userId}...`);
     const supabase = getSupabaseServerClient();
 
     const { data: profile, error } = await supabase
@@ -29,17 +28,19 @@ export const getProfile = createServerFn({ method: "GET" })
 export const upsertProfile = createServerFn({ method: "POST" })
   .validator((d: NewProfile) => d)
   .handler(async ({ data }) => {
-    console.info(`Upserting profile for user ${data.user_id}...`);
     const supabase = getSupabaseServerClient();
 
     const { data: profile, error } = await supabase
       .from("profiles")
-      .upsert({
-        user_id: data.user_id,
-        name: data.name?.trim(),
-      }, {
-        onConflict: 'user_id'
-      })
+      .upsert(
+        {
+          user_id: data.user_id,
+          name: data.name?.trim(),
+        },
+        {
+          onConflict: "user_id",
+        }
+      )
       .select()
       .single();
 
@@ -54,12 +55,9 @@ export const upsertProfile = createServerFn({ method: "POST" })
 export const ensureProfile = createServerFn({ method: "POST" })
   .validator((d: NewProfile) => d)
   .handler(async ({ data }) => {
-    console.info(`Ensuring profile exists for user ${data.user_id}...`);
-
     // Try to get existing profile first
     try {
       const profile = await getProfile({ data: data.user_id });
-      console.info(`Profile found for user ${data.user_id}:`, profile);
       if (profile) {
         return profile;
       }

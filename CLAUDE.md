@@ -84,8 +84,8 @@ The codebase uses TanStack Start's `createServerFn` pattern for server-side oper
 
 Required environment variables:
 
-- `SUPABASE_URL` - Supabase project URL
-- `SUPABASE_ANON_KEY` - Supabase anon public key
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anon public key
 - `DATABASE_URL` - PostgreSQL connection string (for Drizzle)
 
 ### TypeScript Configuration

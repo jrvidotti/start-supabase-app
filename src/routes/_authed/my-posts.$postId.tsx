@@ -49,6 +49,7 @@ function PostComponent() {
         body: data.body || undefined,
         status: data.status,
         tags: data.tags,
+        featured_image: data.featured_image,
       },
     });
   };
@@ -66,6 +67,7 @@ function PostComponent() {
         body: post.body || "",
         status: post.status,
         tags: post.tags?.map((tag: Tag) => tag.name) || [],
+        featured_image: post.featured_image || "",
       }}
       submitButtonText="Save Changes"
       onSubmit={handleSubmit}

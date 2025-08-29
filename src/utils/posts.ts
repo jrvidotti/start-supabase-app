@@ -2,6 +2,7 @@ import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import type { Post, PostWithTags } from "~/db";
 import { getSupabaseServerClient } from "~/utils/supabase";
+import { deletePostImage, extractImagePath } from "~/utils/storage";
 
 export type PostType = Post;
 
@@ -25,6 +26,37 @@ export const fetchPost = createServerFn({ method: "GET" })
 		if (error) {
 			console.log("Error fetching post:", error);
 			throw new Error("Error fetching post");
+		}
+
+		if (!post) {
+			throw notFound();
+		}
+
+		const tags = post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [];
+		return { ...post, tags } as PostWithTags;
+	});
+
+export const fetchPublicPost = createServerFn({ method: "GET" })
+	.validator((d: string) => d)
+	.handler(async ({ data: postId }) => {
+		console.info(`Fetching public post with id ${postId}...`);
+		const supabase = getSupabaseServerClient();
+
+		const { data: post, error } = await supabase
+			.from("posts")
+			.select(`
+				*,
+				posts_tags (
+					tags (*)
+				)
+			`)
+			.eq("id", postId)
+			.eq("status", "published")
+			.single();
+
+		if (error) {
+			console.log("Error fetching public post:", error);
+			throw notFound();
 		}
 
 		if (!post) {
@@ -93,7 +125,7 @@ export const fetchPublicPosts = createServerFn({ method: "GET" }).handler(
 );
 
 export const createPost = createServerFn({ method: "POST" })
-	.validator((d: { title: string; body?: string; status?: string; tags?: string[] }) => d)
+	.validator((d: { title: string; body?: string; status?: string; tags?: string[]; featured_image?: string }) => d)
 	.handler(async ({ data }) => {
 		console.info("Creating new post...");
 		const supabase = getSupabaseServerClient();
@@ -106,6 +138,7 @@ export const createPost = createServerFn({ method: "POST" })
 				body: data.body,
 				user_id: userData?.user?.id,
 				status: data.status || "draft",
+				featured_image: data.featured_image,
 			})
 			.select()
 			.single();
@@ -164,7 +197,7 @@ export const createPost = createServerFn({ method: "POST" })
 
 export const updatePost = createServerFn({ method: "POST" })
 	.validator(
-		(d: { id: string; title?: string; body?: string; status?: string; tags?: string[] }) => d,
+		(d: { id: string; title?: string; body?: string; status?: string; tags?: string[]; featured_image?: string }) => d,
 	)
 	.handler(async ({ data }) => {
 		console.info(`Updating post with id ${data.id}...`);
@@ -177,6 +210,7 @@ export const updatePost = createServerFn({ method: "POST" })
 		if (data.title !== undefined) updateData.title = data.title;
 		if (data.body !== undefined) updateData.body = data.body;
 		if (data.status !== undefined) updateData.status = data.status;
+		if (data.featured_image !== undefined) updateData.featured_image = data.featured_image;
 
 		const { data: updatedPost, error } = await supabase
 			.from("posts")
@@ -251,6 +285,13 @@ export const deletePost = createServerFn({ method: "POST" })
 		console.info(`Deleting post with id ${postId}...`);
 		const supabase = getSupabaseServerClient();
 
+		// First get the post to check if it has an image
+		const { data: existingPost } = await supabase
+			.from("posts")
+			.select("featured_image")
+			.eq("id", postId)
+			.single();
+
 		const { data: deletedPost, error } = await supabase
 			.from("posts")
 			.delete()
@@ -265,6 +306,17 @@ export const deletePost = createServerFn({ method: "POST" })
 
 		if (!deletedPost) {
 			throw notFound();
+		}
+
+		// Delete associated image if exists
+		if (existingPost?.featured_image) {
+			try {
+				const imagePath = extractImagePath(existingPost.featured_image);
+				await deletePostImage({ data: { imagePath } });
+			} catch (imageError) {
+				console.error("Error deleting associated image:", imageError);
+				// Don't fail the post deletion if image deletion fails
+			}
 		}
 
 		return { success: true };

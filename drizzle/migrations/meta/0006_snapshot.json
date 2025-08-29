@@ -1,0 +1,14 @@
+{
+  "id": "0006_storage_rls_policies",
+  "prevId": "0005_wet_doorman",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {},
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
