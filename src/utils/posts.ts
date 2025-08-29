@@ -33,7 +33,7 @@ export const fetchPost = createServerFn({ method: "GET" })
 		}
 
 		const tags =
-			post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [];
+			post.posts_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
 		return { ...post, tags } as PostWithTags;
 	});
 
@@ -65,7 +65,7 @@ export const fetchPublicPost = createServerFn({ method: "GET" })
 		}
 
 		const tags =
-			post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [];
+			post.posts_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
 		return { ...post, tags } as PostWithTags;
 	});
 
@@ -94,7 +94,7 @@ export const fetchMyPosts = createServerFn({ method: "GET" }).handler(
 		return (
 			data?.map((post) => ({
 				...post,
-				tags: post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [],
+				tags: post.posts_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [],
 			})) || ([] as PostWithTags[])
 		);
 	},
@@ -124,7 +124,7 @@ export const fetchPublicPosts = createServerFn({ method: "GET" }).handler(
 		return (
 			data?.map((post) => ({
 				...post,
-				tags: post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [],
+				tags: post.posts_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [],
 			})) || ([] as PostWithTags[])
 		);
 	},

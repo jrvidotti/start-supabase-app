@@ -2,6 +2,9 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { signupFn } from "~/utils/auth";
 import { SignupForm } from "../../components/SignupForm";
 import { useMutation } from "../../hooks/useMutation";
+import { Alert, AlertDescription } from "~/components/ui/alert";
+import { Button } from "~/components/ui/button";
+import { AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/signup")({
 	component: SignupComp,
@@ -38,17 +41,22 @@ function SignupComp() {
 				});
 			}}
 			afterSubmit={
-				<>
-					{signupMutation.data?.error ? (
-						<div className="text-red-400">{signupMutation.data.error}</div>
-					) : null}
-					<div className="text-center mt-4 text-sm">
+				<div className="space-y-4">
+					{signupMutation.data?.error && (
+						<Alert variant="destructive">
+							<AlertCircle className="h-4 w-4" />
+							<AlertDescription>
+								{signupMutation.data.error}
+							</AlertDescription>
+						</Alert>
+					)}
+					<div className="text-center text-sm text-muted-foreground">
 						Already have an account?{" "}
-						<Link to="/login" className="text-blue-500 hover:underline">
-							Login
-						</Link>
+						<Button asChild variant="link" className="p-0 h-auto">
+							<Link to="/login">Login</Link>
+						</Button>
 					</div>
-				</>
+				</div>
 			}
 		/>
 	);

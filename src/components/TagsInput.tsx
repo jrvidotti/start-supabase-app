@@ -1,6 +1,10 @@
 import * as React from "react";
 import type { Tag } from "~/db";
 import { searchTags } from "~/utils/tags";
+import { Badge } from "~/components/ui/badge";
+import { Input } from "~/components/ui/input";
+import { X } from "lucide-react";
+import { cn } from "~/lib/utils";
 
 interface TagsInputProps {
 	value: string[];
@@ -130,24 +134,25 @@ export function TagsInput({
 
 	return (
 		<div className="relative">
-			<div className="w-full min-h-[42px] p-2 border rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 dark:bg-gray-800 dark:border-gray-600">
+			<div className="w-full min-h-[2.5rem] p-2 border border-input rounded-md bg-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
 				<div className="flex flex-wrap gap-1">
 					{value.map((tag) => (
-						<span
+						<Badge
 							key={tag}
-							className="inline-flex items-center px-2 py-1 rounded-md text-sm bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+							variant="secondary"
+							className="px-2 py-1 text-xs gap-1"
 						>
 							{tag}
 							{!disabled && (
 								<button
 									type="button"
 									onClick={() => removeTag(tag)}
-									className="ml-1 text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100"
+									className="ml-1 hover:bg-secondary-foreground/20 rounded-sm"
 								>
-									×
+									<X className="h-3 w-3" />
 								</button>
 							)}
-						</span>
+						</Badge>
 					))}
 					<input
 						ref={inputRef}
@@ -159,7 +164,7 @@ export function TagsInput({
 						onBlur={handleInputBlur}
 						placeholder={value.length === 0 ? placeholder : ""}
 						disabled={disabled}
-						className="flex-1 min-w-[120px] outline-none bg-transparent text-sm"
+						className="flex-1 min-w-[120px] outline-none bg-transparent text-sm placeholder:text-muted-foreground"
 					/>
 				</div>
 			</div>
@@ -168,11 +173,11 @@ export function TagsInput({
 				(suggestions.length > 0 || inputValue.trim() === "") && (
 					<div
 						ref={suggestionsRef}
-						className="absolute top-full left-0 right-0 z-10 mt-1 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+						className="absolute top-full left-0 right-0 z-10 mt-1 bg-popover border rounded-md shadow-md max-h-48 overflow-y-auto"
 					>
 						{suggestions.length > 0 ? (
 							<>
-								<div className="px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
+								<div className="px-3 py-2 text-xs font-medium text-muted-foreground bg-muted/50 border-b">
 									{inputValue.trim() ? "Matching tags:" : "Available tags:"}
 								</div>
 								{suggestions.map((tag, index) => (
@@ -180,18 +185,17 @@ export function TagsInput({
 										key={tag.id}
 										type="button"
 										onClick={() => handleSuggestionClick(tag)}
-										className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
-											index === selectedIndex
-												? "bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-												: "text-gray-900 dark:text-gray-100"
-										}`}
+										className={cn(
+											"w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground",
+											index === selectedIndex && "bg-accent text-accent-foreground"
+										)}
 									>
 										{tag.name}
 									</button>
 								))}
 							</>
 						) : (
-							<div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+							<div className="px-3 py-2 text-sm text-muted-foreground">
 								{inputValue.trim()
 									? "No matching tags found. Press Enter to create a new tag."
 									: "No tags available yet."}

@@ -1,25 +1,41 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
+import { PlusCircle, FileText } from "lucide-react";
+
 export const Route = createFileRoute("/_authed/my-posts/")({
 	component: PostsIndexComponent,
 });
 
 function PostsIndexComponent() {
 	return (
-		<div className="p-4 text-center">
-			<div className="text-gray-600 dark:text-gray-300 mb-6">
-				<h2 className="text-lg font-semibold mb-2">Welcome to your posts!</h2>
-				<p>
-					Select a post from the list to edit it, or create a new one to get
-					started.
-				</p>
+		<div className="container mx-auto px-4 py-8">
+			<div className="max-w-2xl mx-auto text-center">
+				<Card>
+					<CardHeader>
+						<div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+							<FileText className="h-6 w-6 text-primary" />
+						</div>
+						<CardTitle className="text-2xl">Welcome to Your Posts!</CardTitle>
+						<CardDescription className="text-lg">
+							This is your personal writing space. Start creating amazing content to share with the world.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className="space-y-4">
+							<p className="text-muted-foreground">
+								Select a post from the sidebar to edit it, or create your first post to get started.
+							</p>
+							<Button asChild size="lg" className="w-full sm:w-auto">
+								<Link to="/my-posts/new">
+									<PlusCircle className="h-5 w-5 mr-2" />
+									Create Your First Post
+								</Link>
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
 			</div>
-
-			<Link
-				to="/my-posts/new"
-				className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-			>
-				Create Your First Post
-			</Link>
 		</div>
 	);
 }

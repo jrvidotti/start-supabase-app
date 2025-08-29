@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-router";
 import { NotFound } from "~/components/NotFound";
 import { PostForm, type PostFormData } from "~/components/PostForm";
-import type { Tag } from "~/db";
 import { useMutation } from "~/hooks/useMutation";
 import { deletePost, fetchPost, updatePost } from "~/utils/posts";
 
@@ -66,7 +65,7 @@ function PostComponent() {
 				title: post.title,
 				body: post.body || "",
 				status: post.status,
-				tags: post.tags?.map((tag: Tag) => tag.name) || [],
+				tags: post.tags || [],
 				featured_image: post.featured_image || "",
 			}}
 			submitButtonText="Save Changes"

@@ -11,6 +11,11 @@ import { createServerFn } from "@tanstack/react-start";
 import type * as React from "react";
 import { DefaultCatchBoundary } from "../components/DefaultCatchBoundary";
 import { NotFound } from "../components/NotFound";
+import { ThemeProvider } from "../components/theme-provider";
+import { ThemeToggle } from "../components/theme-toggle";
+import { Button } from "../components/ui/button";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import { Toaster } from "../components/ui/sonner";
 import appCss from "../styles/app.css?url";
 import { ensureProfile } from "../utils/profiles";
 import { seo } from "../utils/seo";
@@ -95,9 +100,16 @@ export const Route = createRootRoute({
 
 function RootComponent() {
 	return (
-		<RootDocument>
-			<Outlet />
-		</RootDocument>
+		<ThemeProvider
+			attribute="class"
+			defaultTheme="system"
+			enableSystem
+			disableTransitionOnChange
+		>
+			<RootDocument>
+				<Outlet />
+			</RootDocument>
+		</ThemeProvider>
 	);
 }
 
@@ -108,48 +120,87 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 		<html lang="en">
 			<head>
 				<HeadContent />
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `
+							try {
+								const stored = localStorage.getItem('theme');
+								if (stored) {
+									document.documentElement.classList.toggle('dark', stored === 'dark');
+								} else {
+									const isDarkSystem = window.matchMedia('(prefers-color-scheme: dark)').matches;
+									document.documentElement.classList.toggle('dark', isDarkSystem);
+								}
+							} catch (e) {}
+						`
+					}}
+				/>
 			</head>
 			<body>
-				<div className="p-2 flex gap-2 text-lg">
-					<Link
-						to="/"
-						activeProps={{
-							className: "font-bold",
-						}}
-						activeOptions={{ exact: true }}
-					>
-						Home
-					</Link>{" "}
-					{user && (
-						<Link
-							to="/my-posts"
-							activeProps={{
-								className: "font-bold",
-							}}
-						>
-							My Posts
-						</Link>
-					)}
-					<div className="ml-auto">
-						{user ? (
-							<>
-								<Link to="/profile" className="mr-2 hover:underline">
-									{user.profile?.name || user.email}
+				<div className="min-h-screen bg-background">
+					<nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+						<div className="container flex h-16 items-center justify-between">
+							<div className="flex items-center space-x-4">
+								<Link
+									to="/"
+									activeProps={{
+										className: "font-semibold text-primary",
+									}}
+									activeOptions={{ exact: true }}
+									className="text-lg font-medium hover:text-primary transition-colors"
+								>
+									Home
 								</Link>
-								<Link to="/logout">Logout</Link>
-							</>
-						) : (
-							<>
-								<Link to="/login" className="mr-2">
-									Login
-								</Link>
-								<Link to="/signup">Sign Up</Link>
-							</>
-						)}
-					</div>
+								{user && (
+									<Link
+										to="/my-posts"
+										activeProps={{
+											className: "font-semibold text-primary",
+										}}
+										className="text-lg font-medium hover:text-primary transition-colors"
+									>
+										My Posts
+									</Link>
+								)}
+							</div>
+							
+							<div className="flex items-center space-x-4">
+								<ThemeToggle />
+								{user ? (
+									<div className="flex items-center space-x-2">
+										<Link to="/profile" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+											<Avatar className="h-8 w-8">
+												<AvatarFallback className="bg-primary/10">
+													{user.profile?.name?.[0] || user.email[0].toUpperCase()}
+												</AvatarFallback>
+											</Avatar>
+											<span className="text-sm font-medium">
+												{user.profile?.name || user.email}
+											</span>
+										</Link>
+										<Button asChild variant="ghost" size="sm">
+											<Link to="/logout">Logout</Link>
+										</Button>
+									</div>
+								) : (
+									<div className="flex items-center space-x-2">
+										<Button asChild variant="ghost" size="sm">
+											<Link to="/login">Login</Link>
+										</Button>
+										<Button asChild size="sm">
+											<Link to="/signup">Sign Up</Link>
+										</Button>
+									</div>
+								)}
+							</div>
+						</div>
+					</nav>
+
+					<main className="flex-1">
+						{children}
+					</main>
 				</div>
-				<hr />
-				{children}
+				<Toaster />
 				<TanStackRouterDevtools position="bottom-right" />
 				<Scripts />
 			</body>

@@ -176,5 +176,5 @@ export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
 
 export type PostWithTags = Post & {
-	tags: Tag[];
+	tags: string[];
 };

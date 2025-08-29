@@ -2,6 +2,15 @@ import * as React from "react";
 import { Route } from "~/routes/__root";
 import { supabase } from "~/utils/supabase-client";
 import { TagsInput } from "./TagsInput";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { Alert, AlertDescription } from "~/components/ui/alert";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
+import { Upload, X, AlertCircle, Loader2, Image as ImageIcon } from "lucide-react";
 
 export interface PostFormData {
 	title: string;
@@ -209,204 +218,235 @@ export function PostForm({
 	};
 
 	return (
-		<div className="p-4 w-full">
-			<div className="mb-6">
-				<h1 className="text-2xl font-bold mb-2">{title}</h1>
-			</div>
-
-			<form onSubmit={handleSubmit} className="space-y-4">
-				<div>
-					<label htmlFor="title" className="block text-sm font-medium mb-2">
-						Title *
-					</label>
-					<input
-						id="title"
-						type="text"
-						value={formData.title}
-						onChange={(e) =>
-							setFormData({ ...formData, title: e.target.value })
-						}
-						className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-						placeholder="Enter post title..."
-						required
-					/>
-				</div>
-
-				<div>
-					<label htmlFor="body" className="block text-sm font-medium mb-2">
-						Body
-					</label>
-					<textarea
-						id="body"
-						value={formData.body}
-						onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-						rows={6}
-						className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-						placeholder="Enter post content..."
-					/>
-				</div>
-
-				<div>
-					<label htmlFor="tags" className="block text-sm font-medium mb-2">
-						Tags
-					</label>
-					<TagsInput
-						value={formData.tags}
-						onChange={(tags) => setFormData({ ...formData, tags })}
-						placeholder="Add tags..."
-					/>
-				</div>
-
-				<div>
-					<label
-						htmlFor="featured_image"
-						className="block text-sm font-medium mb-2"
-					>
-						Featured Image
-					</label>
-
-					{previewUrl ? (
-						<div className="mb-4">
-							<div className="relative inline-block">
-								<img
-									src={previewUrl}
-									alt="Preview"
-									className="w-48 h-32 object-cover rounded-lg border"
+		<div className="container mx-auto px-4 py-8">
+			<Card className="max-w-4xl mx-auto">
+				<CardHeader>
+					<CardTitle className="text-3xl">{title}</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<form onSubmit={handleSubmit} className="space-y-6">
+						<div className="grid gap-6 md:grid-cols-2">
+							<div className="md:col-span-2">
+								<Label htmlFor="title">Title *</Label>
+								<Input
+									id="title"
+									type="text"
+									value={formData.title}
+									onChange={(e) =>
+										setFormData({ ...formData, title: e.target.value })
+									}
+									placeholder="Enter post title..."
+									required
+									className="mt-1"
 								/>
-								<button
-									type="button"
-									onClick={handleRemoveImage}
-									className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700"
-									title="Remove image"
-								>
-									×
-								</button>
+							</div>
+
+							<div className="md:col-span-2">
+								<Label htmlFor="body">Content</Label>
+								<Textarea
+									id="body"
+									value={formData.body}
+									onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+									rows={8}
+									placeholder="Write your post content..."
+									className="mt-1"
+								/>
+							</div>
+
+							<div className="md:col-span-2">
+								<Label htmlFor="tags">Tags</Label>
+								<TagsInput
+									value={formData.tags}
+									onChange={(tags) => setFormData({ ...formData, tags })}
+									placeholder="Add tags..."
+								/>
 							</div>
 						</div>
-					) : null}
 
-					<input
-						id="featured_image"
-						type="file"
-						accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
-						onChange={handleFileSelect}
-						className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-						disabled={imageUploading}
-					/>
+						<div className="md:col-span-2">
+							<Label htmlFor="featured_image">Featured Image</Label>
+							<div className="space-y-4">
+								{previewUrl && (
+									<div className="relative inline-block">
+										<img
+											src={previewUrl}
+											alt="Preview"
+											className="w-full max-w-sm h-48 object-cover rounded-lg border"
+										/>
+										<Button
+											type="button"
+											onClick={handleRemoveImage}
+											size="icon"
+											variant="destructive"
+											className="absolute -top-2 -right-2 h-8 w-8"
+											title="Remove image"
+										>
+											<X className="h-4 w-4" />
+										</Button>
+									</div>
+								)}
 
-					<p className="text-sm text-gray-500 mt-1">
-						Supported formats: JPEG, PNG, WebP, GIF. Maximum size: 5MB.
-					</p>
+								<div className="flex items-center justify-center w-full">
+									<Label 
+										htmlFor="featured_image"
+										className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/80 transition-colors"
+									>
+										<div className="flex flex-col items-center justify-center pt-5 pb-6">
+											{imageUploading ? (
+												<Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+											) : (
+												<>
+													<Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+													<p className="mb-2 text-sm text-muted-foreground">
+														<span className="font-semibold">Click to upload</span> or drag and drop
+													</p>
+													<p className="text-xs text-muted-foreground">
+														JPEG, PNG, WebP, GIF (MAX. 5MB)
+													</p>
+												</>
+											)}
+										</div>
+										<Input
+											id="featured_image"
+											type="file"
+											className="hidden"
+											accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+											onChange={handleFileSelect}
+											disabled={imageUploading}
+										/>
+									</Label>
+								</div>
 
-					{imageError && (
-						<div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-							{imageError}
+								{imageError && (
+									<Alert variant="destructive">
+										<AlertCircle className="h-4 w-4" />
+										<AlertDescription>{imageError}</AlertDescription>
+									</Alert>
+								)}
+
+								{imageUploading && (
+									<Alert>
+										<Loader2 className="h-4 w-4 animate-spin" />
+										<AlertDescription>Uploading image...</AlertDescription>
+									</Alert>
+								)}
+							</div>
 						</div>
-					)}
 
-					{imageUploading && (
-						<div className="mt-2 p-2 bg-blue-100 border border-blue-400 text-blue-700 rounded text-sm">
-							Uploading image...
+						<div>
+							<Label htmlFor="status">Status</Label>
+							<Select 
+								value={formData.status} 
+								onValueChange={(value: typeof formData.status) =>
+									setFormData({ ...formData, status: value })
+								}
+							>
+								<SelectTrigger className="mt-1">
+									<SelectValue placeholder="Select status" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="draft">Draft</SelectItem>
+									<SelectItem value="published">Published</SelectItem>
+									<SelectItem value="archived">Archived</SelectItem>
+								</SelectContent>
+							</Select>
 						</div>
-					)}
-				</div>
 
-				<div>
-					<label htmlFor="status" className="block text-sm font-medium mb-2">
-						Status
-					</label>
-					<select
-						id="status"
-						value={formData.status}
-						onChange={(e) =>
-							setFormData({
-								...formData,
-								status: e.target.value as typeof formData.status,
-							})
-						}
-						className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-					>
-						<option value="draft">Draft</option>
-						<option value="published">Published</option>
-						<option value="archived">Archived</option>
-					</select>
-				</div>
+						<div className="flex flex-col sm:flex-row gap-3 pt-6">
+							<Button
+								type="submit"
+								disabled={isSubmitting || !formData.title.trim() || imageUploading}
+								className="flex-1 sm:flex-none"
+							>
+								{imageUploading ? (
+									<>
+										<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+										Uploading...
+									</>
+								) : isSubmitting ? (
+									<>
+										<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+										Saving...
+									</>
+								) : (
+									submitButtonText
+								)}
+							</Button>
 
-				<div className="flex gap-3 pt-4">
-					<button
-						type="submit"
-						disabled={isSubmitting || !formData.title.trim() || imageUploading}
-						className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-					>
-						{imageUploading
-							? "Uploading..."
-							: isSubmitting
-								? "Saving..."
-								: submitButtonText}
-					</button>
+							{onCancel && (
+								<Button
+									type="button"
+									variant="outline"
+									onClick={onCancel}
+								>
+									Cancel
+								</Button>
+							)}
 
-					{onCancel && (
-						<button
-							type="button"
-							onClick={onCancel}
-							className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-						>
-							Cancel
-						</button>
-					)}
+							{showDeleteButton && onDelete && (
+								<Button
+									type="button"
+									variant="destructive"
+									onClick={() => setShowDeleteConfirm(true)}
+									disabled={isDeleting}
+									className="ml-auto"
+								>
+									{isDeleting ? (
+										<>
+											<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+											Deleting...
+										</>
+									) : (
+										isDeletingButtonText
+									)}
+								</Button>
+							)}
+						</div>
 
-					{showDeleteButton && onDelete && (
-						<button
-							type="button"
-							onClick={() => setShowDeleteConfirm(true)}
-							disabled={isDeleting}
-							className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
-						>
-							{isDeleting ? "Deleting..." : isDeletingButtonText}
-						</button>
-					)}
-				</div>
+						{error && (
+							<Alert variant="destructive" className="mt-4">
+								<AlertCircle className="h-4 w-4" />
+								<AlertDescription>{error}</AlertDescription>
+							</Alert>
+						)}
 
-				{error && (
-					<div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-						{error}
-					</div>
-				)}
+						{deleteError && (
+							<Alert variant="destructive" className="mt-4">
+								<AlertCircle className="h-4 w-4" />
+								<AlertDescription>{deleteError}</AlertDescription>
+							</Alert>
+						)}
+					</form>
+				</CardContent>
+			</Card>
 
-				{deleteError && (
-					<div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-						{deleteError}
-					</div>
-				)}
-			</form>
-
-			{showDeleteConfirm && (
-				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-					<div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-						<h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
-						<p className="text-gray-600 dark:text-gray-300 mb-6">
+			<Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Confirm Delete</DialogTitle>
+						<DialogDescription>
 							Are you sure you want to delete this post? This action cannot be
 							undone.
-						</p>
-						<div className="flex gap-3 justify-end">
-							<button
-								type="button"
-								onClick={() => setShowDeleteConfirm(false)}
-								className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-							>
-								Cancel
-							</button>
-							<button
-								type="button"
-								onClick={handleDelete}
-								className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-							>
-								Delete
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => setShowDeleteConfirm(false)}
+						>
+							Cancel
+						</Button>
+						<Button
+							type="button"
+							variant="destructive"
+							onClick={handleDelete}
+						>
+							Delete
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
