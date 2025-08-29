@@ -14,6 +14,7 @@ import { NotFound } from "../components/NotFound";
 import appCss from "../styles/app.css?url";
 import { seo } from "../utils/seo";
 import { getSupabaseServerClient } from "../utils/supabase";
+import { ensureProfile } from "../utils/profiles";
 
 const fetchUser = createServerFn({ method: "GET" }).handler(async () => {
 	const supabase = getSupabaseServerClient();
@@ -25,8 +26,27 @@ const fetchUser = createServerFn({ method: "GET" }).handler(async () => {
 
 	// console.log("supabase user", data.user);
 
+	// Try to ensure profile exists for the user
+	// For existing users without profiles, we won't have their name
+	// They'll need to update their profile later if needed
+	let profile = null;
+	try {
+		// Don't pass name since we don't have it for existing users
+		// This will only fetch existing profile, not create a new one
+		profile = await ensureProfile({ 
+			data: { 
+				user_id: data.user.id 
+			} 
+		});
+	} catch (error) {
+		// Profile doesn't exist and we can't create it without a name
+		// This is fine for existing users, they can set up their profile later
+		console.log("No profile found for user:", data.user.id);
+	}
+
 	return {
 		email: data.user.email,
+		profile: profile || null,
 	};
 });
 
@@ -126,7 +146,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<div className="ml-auto">
 						{user ? (
 							<>
-								<span className="mr-2">{user.email}</span>
+								<span className="mr-2">
+									{user.profile?.name || user.email}
+								</span>
 								<Link to="/logout">Logout</Link>
 							</>
 						) : (

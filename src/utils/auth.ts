@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getSupabaseServerClient } from "~/utils/supabase";
+import { createProfile } from "~/utils/profiles";
 
 export const loginFn = createServerFn({ method: "POST" })
 	.validator((d: { email: string; password: string }) => d)
@@ -19,7 +20,7 @@ export const loginFn = createServerFn({ method: "POST" })
 
 export const signupFn = createServerFn({ method: "POST" })
 	.validator(
-		(d: { email: string; password: string; redirectUrl?: string }) => d,
+		(d: { email: string; password: string; name: string; redirectUrl?: string }) => d,
 	)
 	.handler(
 		async ({
@@ -40,6 +41,22 @@ export const signupFn = createServerFn({ method: "POST" })
 					success: false,
 					error: error.message,
 				};
+			}
+
+			// Create profile if user was created successfully
+			if (authData.user?.id && data.name) {
+				try {
+					await createProfile({
+						data: {
+							user_id: authData.user.id,
+							name: data.name,
+						},
+					});
+				} catch (profileError) {
+					console.error("Error creating profile:", profileError);
+					// Don't fail signup if profile creation fails
+					// Profile will be created on login if missing
+				}
 			}
 
 			// Return success status instead of redirecting

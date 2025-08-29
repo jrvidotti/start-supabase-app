@@ -135,6 +135,53 @@ export type NewTag = typeof tags.$inferInsert;
 export type PostTag = typeof posts_tags.$inferSelect;
 export type NewPostTag = typeof posts_tags.$inferInsert;
 
+export const profiles = pgTable(
+	"profiles",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		user_id: uuid("user_id").notNull(),
+		name: text("name").notNull(),
+		created_at: timestamp("created_at").defaultNow().notNull(),
+		updated_at: timestamp("updated_at").defaultNow().notNull(),
+	},
+	(table) => [
+		unique("profiles_user_id_unique").on(table.user_id),
+		pgPolicy("profiles_select_policy", {
+			as: "permissive",
+			for: "select",
+			to: "public",
+			using: sql`user_id = auth.uid()`,
+		}),
+		pgPolicy("profiles_insert_policy", {
+			as: "permissive",
+			for: "insert",
+			to: "public",
+			withCheck: sql`user_id = auth.uid()`,
+		}),
+		pgPolicy("profiles_update_policy", {
+			as: "permissive",
+			for: "update",
+			to: "public",
+			using: sql`user_id = auth.uid()`,
+		}),
+		pgPolicy("profiles_delete_policy", {
+			as: "permissive",
+			for: "delete",
+			to: "public",
+			using: sql`user_id = auth.uid()`,
+		}),
+	],
+).enableRLS();
+
+export type Post = typeof posts.$inferSelect;
+export type NewPost = typeof posts.$inferInsert;
+export type Tag = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;
+export type PostTag = typeof posts_tags.$inferSelect;
+export type NewPostTag = typeof posts_tags.$inferInsert;
+export type Profile = typeof profiles.$inferSelect;
+export type NewProfile = typeof profiles.$inferInsert;
+
 export type PostWithTags = Post & {
 	tags: Tag[];
 };

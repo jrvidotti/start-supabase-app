@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { signupFn } from "~/utils/auth";
-import { Auth } from "../../components/Auth";
+import { SignupForm } from "../../components/SignupForm";
 import { useMutation } from "../../hooks/useMutation";
 
 export const Route = createFileRoute("/_auth/signup")({
@@ -24,8 +24,7 @@ function SignupComp() {
 	});
 
 	return (
-		<Auth
-			actionText="Sign Up"
+		<SignupForm
 			status={signupMutation.status}
 			onSubmit={(e) => {
 				const formData = new FormData(e.target as HTMLFormElement);
@@ -34,13 +33,14 @@ function SignupComp() {
 					data: {
 						email: formData.get("email") as string,
 						password: formData.get("password") as string,
+						name: formData.get("name") as string,
 					},
 				});
 			}}
 			afterSubmit={
 				<>
 					{signupMutation.data?.error ? (
-						<div className="text-red-400">{signupMutation.data.message}</div>
+						<div className="text-red-400">{signupMutation.data.error}</div>
 					) : null}
 					<div className="text-center mt-4 text-sm">
 						Already have an account?{" "}
