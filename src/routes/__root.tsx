@@ -69,7 +69,8 @@ export const Route = createRootRoute({
       },
       ...seo({
         title: "ShareSpace | Share Your Thoughts and Connect",
-        description: "ShareSpace - A modern platform for sharing posts, connecting with others, and building communities.",
+        description:
+          "ShareSpace - A modern platform for sharing posts, connecting with others, and building communities.",
       }),
     ],
     links: [
@@ -137,8 +138,6 @@ function NavigationLoadingBar() {
 function RootDocument({ children }: { children: ReactNode }) {
   const { user } = Route.useRouteContext();
 
-  console.log("user", user);
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -170,9 +169,11 @@ function RootDocument({ children }: { children: ReactNode }) {
                   className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
                 >
                   <Share2 className="h-6 w-6 text-primary" />
-                  <span className="text-xl font-bold text-foreground">ShareSpace</span>
+                  <span className="text-xl font-bold text-foreground">
+                    ShareSpace
+                  </span>
                 </Link>
-                
+
                 <div className="flex items-center space-x-4">
                   <Link
                     to="/"
