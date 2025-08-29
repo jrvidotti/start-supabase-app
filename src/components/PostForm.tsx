@@ -1,412 +1,412 @@
 import * as React from "react";
-import { TagsInput } from "./TagsInput";
-import { supabase } from "~/utils/supabase-client";
 import { Route } from "~/routes/__root";
+import { supabase } from "~/utils/supabase-client";
+import { TagsInput } from "./TagsInput";
 
 export interface PostFormData {
-  title: string;
-  body: string;
-  status: "draft" | "published" | "archived";
-  tags: string[];
-  featured_image?: string;
+	title: string;
+	body: string;
+	status: "draft" | "published" | "archived";
+	tags: string[];
+	featured_image?: string;
 }
 
 interface PostFormProps {
-  initialData?: Partial<PostFormData>;
-  onSubmit: (data: PostFormData) => void;
-  onCancel?: () => void;
-  submitButtonText: string;
-  isSubmitting?: boolean;
-  error?: string;
-  showDeleteButton?: boolean;
-  onDelete?: () => void;
-  isDeletingButtonText?: string;
-  isDeleting?: boolean;
-  deleteError?: string;
-  title: string;
+	initialData?: Partial<PostFormData>;
+	onSubmit: (data: PostFormData) => void;
+	onCancel?: () => void;
+	submitButtonText: string;
+	isSubmitting?: boolean;
+	error?: string;
+	showDeleteButton?: boolean;
+	onDelete?: () => void;
+	isDeletingButtonText?: string;
+	isDeleting?: boolean;
+	deleteError?: string;
+	title: string;
 }
 
 export function PostForm({
-  initialData = {},
-  onSubmit,
-  onCancel,
-  submitButtonText,
-  isSubmitting = false,
-  error,
-  showDeleteButton = false,
-  onDelete,
-  isDeletingButtonText = "Delete Post",
-  isDeleting = false,
-  deleteError,
-  title,
+	initialData = {},
+	onSubmit,
+	onCancel,
+	submitButtonText,
+	isSubmitting = false,
+	error,
+	showDeleteButton = false,
+	onDelete,
+	isDeletingButtonText = "Delete Post",
+	isDeleting = false,
+	deleteError,
+	title,
 }: PostFormProps) {
-  const { user } = Route.useRouteContext();
-  const [formData, setFormData] = React.useState<PostFormData>({
-    title: initialData.title || "",
-    body: initialData.body || "",
-    status: initialData.status || "draft",
-    tags: initialData.tags || [],
-    featured_image: initialData.featured_image || "",
-  });
+	const { user } = Route.useRouteContext();
+	const [formData, setFormData] = React.useState<PostFormData>({
+		title: initialData.title || "",
+		body: initialData.body || "",
+		status: initialData.status || "draft",
+		tags: initialData.tags || [],
+		featured_image: initialData.featured_image || "",
+	});
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = React.useState<string>("");
-  const [imageUploading, setImageUploading] = React.useState(false);
-  const [imageError, setImageError] = React.useState<string>("");
+	const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+	const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+	const [previewUrl, setPreviewUrl] = React.useState<string>("");
+	const [imageUploading, setImageUploading] = React.useState(false);
+	const [imageError, setImageError] = React.useState<string>("");
 
-  // Update form data when initialData changes (when switching between posts)
-  React.useEffect(() => {
-    setFormData({
-      title: initialData.title || "",
-      body: initialData.body || "",
-      status: initialData.status || "draft",
-      tags: initialData.tags || [],
-      featured_image: initialData.featured_image || "",
-    });
+	// Update form data when initialData changes (when switching between posts)
+	React.useEffect(() => {
+		setFormData({
+			title: initialData.title || "",
+			body: initialData.body || "",
+			status: initialData.status || "draft",
+			tags: initialData.tags || [],
+			featured_image: initialData.featured_image || "",
+		});
 
-    // Set preview URL for existing image
-    if (initialData.featured_image) {
-      setPreviewUrl(initialData.featured_image);
-    } else {
-      setPreviewUrl("");
-    }
+		// Set preview URL for existing image
+		if (initialData.featured_image) {
+			setPreviewUrl(initialData.featured_image);
+		} else {
+			setPreviewUrl("");
+		}
 
-    // Clear file selection when switching posts
-    setSelectedFile(null);
-    setImageError("");
-  }, [
-    initialData.title,
-    initialData.body,
-    initialData.status,
-    initialData.tags,
-    initialData.featured_image,
-  ]);
+		// Clear file selection when switching posts
+		setSelectedFile(null);
+		setImageError("");
+	}, [
+		initialData.title,
+		initialData.body,
+		initialData.status,
+		initialData.tags,
+		initialData.featured_image,
+	]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
 
-    // Validate file type
-    const allowedTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/webp",
-      "image/gif",
-    ];
+		// Validate file type
+		const allowedTypes = [
+			"image/jpeg",
+			"image/jpg",
+			"image/png",
+			"image/webp",
+			"image/gif",
+		];
 
-    if (!allowedTypes.includes(file.type)) {
-      setImageError(
-        "Invalid file type. Only JPEG, PNG, WebP and GIF images are allowed."
-      );
-      return;
-    }
+		if (!allowedTypes.includes(file.type)) {
+			setImageError(
+				"Invalid file type. Only JPEG, PNG, WebP and GIF images are allowed.",
+			);
+			return;
+		}
 
-    // Validate file size (5MB)
-    if (file.size > 5242880) {
-      setImageError("File size too large. Maximum size is 5MB.");
-      return;
-    }
+		// Validate file size (5MB)
+		if (file.size > 5242880) {
+			setImageError("File size too large. Maximum size is 5MB.");
+			return;
+		}
 
-    setSelectedFile(file);
-    setImageError("");
+		setSelectedFile(file);
+		setImageError("");
 
-    // Create preview URL
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        setPreviewUrl(e.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
+		// Create preview URL
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			if (e.target?.result) {
+				setPreviewUrl(e.target.result as string);
+			}
+		};
+		reader.readAsDataURL(file);
+	};
 
-  const handleRemoveImage = () => {
-    setSelectedFile(null);
-    setPreviewUrl("");
-    setFormData({ ...formData, featured_image: "" });
-    setImageError("");
+	const handleRemoveImage = () => {
+		setSelectedFile(null);
+		setPreviewUrl("");
+		setFormData({ ...formData, featured_image: "" });
+		setImageError("");
 
-    // Clear file input
-    const fileInput = document.getElementById(
-      "featured_image"
-    ) as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = "";
-    }
-  };
+		// Clear file input
+		const fileInput = document.getElementById(
+			"featured_image",
+		) as HTMLInputElement;
+		if (fileInput) {
+			fileInput.value = "";
+		}
+	};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title.trim()) {
-      return;
-    }
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!formData.title.trim()) {
+			return;
+		}
 
-    let imageUrl = formData.featured_image || "";
+		let imageUrl = formData.featured_image || "";
 
-    // Upload new image if selected
-    if (selectedFile) {
-      setImageUploading(true);
-      setImageError("");
+		// Upload new image if selected
+		if (selectedFile) {
+			setImageUploading(true);
+			setImageError("");
 
-      try {
-        // Get user ID from auth context
-        const userId = user?.id;
-        if (!userId) {
-          throw new Error("User not authenticated");
-        }
+			try {
+				// Get user ID from auth context
+				const userId = user?.id;
+				if (!userId) {
+					throw new Error("User not authenticated");
+				}
 
-        // Generate unique filename
-        const timestamp = Date.now();
-        const fileName = selectedFile.name;
-        const fullFileName = `${userId}/${timestamp}-${fileName}`;
+				// Generate unique filename
+				const timestamp = Date.now();
+				const fileName = selectedFile.name;
+				const fullFileName = `${userId}/${timestamp}-${fileName}`;
 
-        console.log("Uploading image...");
+				console.log("Uploading image...");
 
-        // Upload directly to Supabase storage
-        const { error } = await supabase.storage
-          .from("post-images")
-          .upload(fullFileName, selectedFile, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+				// Upload directly to Supabase storage
+				const { error } = await supabase.storage
+					.from("post-images")
+					.upload(fullFileName, selectedFile, {
+						cacheControl: "3600",
+						upsert: false,
+					});
 
-        if (error) {
-          console.log("Error uploading image:", error);
-          throw new Error(error.message);
-        }
+				if (error) {
+					console.log("Error uploading image:", error);
+					throw new Error(error.message);
+				}
 
-        // Get public URL
-        const { data: publicUrlData } = supabase.storage
-          .from("post-images")
-          .getPublicUrl(fullFileName);
+				// Get public URL
+				const { data: publicUrlData } = supabase.storage
+					.from("post-images")
+					.getPublicUrl(fullFileName);
 
-        imageUrl = publicUrlData.publicUrl;
-      } catch (error) {
-        setImageError(
-          error instanceof Error ? error.message : "Failed to upload image"
-        );
-        setImageUploading(false);
-        return;
-      }
+				imageUrl = publicUrlData.publicUrl;
+			} catch (error) {
+				setImageError(
+					error instanceof Error ? error.message : "Failed to upload image",
+				);
+				setImageUploading(false);
+				return;
+			}
 
-      setImageUploading(false);
-    }
+			setImageUploading(false);
+		}
 
-    onSubmit({
-      title: formData.title.trim(),
-      body: formData.body.trim(),
-      status: formData.status,
-      tags: formData.tags,
-      featured_image: imageUrl,
-    });
-  };
+		onSubmit({
+			title: formData.title.trim(),
+			body: formData.body.trim(),
+			status: formData.status,
+			tags: formData.tags,
+			featured_image: imageUrl,
+		});
+	};
 
-  const handleDelete = () => {
-    onDelete?.();
-    setShowDeleteConfirm(false);
-  };
+	const handleDelete = () => {
+		onDelete?.();
+		setShowDeleteConfirm(false);
+	};
 
-  return (
-    <div className="p-4 w-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">{title}</h1>
-      </div>
+	return (
+		<div className="p-4 w-full">
+			<div className="mb-6">
+				<h1 className="text-2xl font-bold mb-2">{title}</h1>
+			</div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-2">
-            Title *
-          </label>
-          <input
-            id="title"
-            type="text"
-            value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-            placeholder="Enter post title..."
-            required
-          />
-        </div>
+			<form onSubmit={handleSubmit} className="space-y-4">
+				<div>
+					<label htmlFor="title" className="block text-sm font-medium mb-2">
+						Title *
+					</label>
+					<input
+						id="title"
+						type="text"
+						value={formData.title}
+						onChange={(e) =>
+							setFormData({ ...formData, title: e.target.value })
+						}
+						className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
+						placeholder="Enter post title..."
+						required
+					/>
+				</div>
 
-        <div>
-          <label htmlFor="body" className="block text-sm font-medium mb-2">
-            Body
-          </label>
-          <textarea
-            id="body"
-            value={formData.body}
-            onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-            rows={6}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-            placeholder="Enter post content..."
-          />
-        </div>
+				<div>
+					<label htmlFor="body" className="block text-sm font-medium mb-2">
+						Body
+					</label>
+					<textarea
+						id="body"
+						value={formData.body}
+						onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+						rows={6}
+						className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
+						placeholder="Enter post content..."
+					/>
+				</div>
 
-        <div>
-          <label htmlFor="tags" className="block text-sm font-medium mb-2">
-            Tags
-          </label>
-          <TagsInput
-            value={formData.tags}
-            onChange={(tags) => setFormData({ ...formData, tags })}
-            placeholder="Add tags..."
-          />
-        </div>
+				<div>
+					<label htmlFor="tags" className="block text-sm font-medium mb-2">
+						Tags
+					</label>
+					<TagsInput
+						value={formData.tags}
+						onChange={(tags) => setFormData({ ...formData, tags })}
+						placeholder="Add tags..."
+					/>
+				</div>
 
-        <div>
-          <label
-            htmlFor="featured_image"
-            className="block text-sm font-medium mb-2"
-          >
-            Featured Image
-          </label>
+				<div>
+					<label
+						htmlFor="featured_image"
+						className="block text-sm font-medium mb-2"
+					>
+						Featured Image
+					</label>
 
-          {previewUrl ? (
-            <div className="mb-4">
-              <div className="relative inline-block">
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="w-48 h-32 object-cover rounded-lg border"
-                />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700"
-                  title="Remove image"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          ) : null}
+					{previewUrl ? (
+						<div className="mb-4">
+							<div className="relative inline-block">
+								<img
+									src={previewUrl}
+									alt="Preview"
+									className="w-48 h-32 object-cover rounded-lg border"
+								/>
+								<button
+									type="button"
+									onClick={handleRemoveImage}
+									className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700"
+									title="Remove image"
+								>
+									×
+								</button>
+							</div>
+						</div>
+					) : null}
 
-          <input
-            id="featured_image"
-            type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
-            onChange={handleFileSelect}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-            disabled={imageUploading}
-          />
+					<input
+						id="featured_image"
+						type="file"
+						accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+						onChange={handleFileSelect}
+						className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
+						disabled={imageUploading}
+					/>
 
-          <p className="text-sm text-gray-500 mt-1">
-            Supported formats: JPEG, PNG, WebP, GIF. Maximum size: 5MB.
-          </p>
+					<p className="text-sm text-gray-500 mt-1">
+						Supported formats: JPEG, PNG, WebP, GIF. Maximum size: 5MB.
+					</p>
 
-          {imageError && (
-            <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-              {imageError}
-            </div>
-          )}
+					{imageError && (
+						<div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+							{imageError}
+						</div>
+					)}
 
-          {imageUploading && (
-            <div className="mt-2 p-2 bg-blue-100 border border-blue-400 text-blue-700 rounded text-sm">
-              Uploading image...
-            </div>
-          )}
-        </div>
+					{imageUploading && (
+						<div className="mt-2 p-2 bg-blue-100 border border-blue-400 text-blue-700 rounded text-sm">
+							Uploading image...
+						</div>
+					)}
+				</div>
 
-        <div>
-          <label htmlFor="status" className="block text-sm font-medium mb-2">
-            Status
-          </label>
-          <select
-            id="status"
-            value={formData.status}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                status: e.target.value as typeof formData.status,
-              })
-            }
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-          >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
+				<div>
+					<label htmlFor="status" className="block text-sm font-medium mb-2">
+						Status
+					</label>
+					<select
+						id="status"
+						value={formData.status}
+						onChange={(e) =>
+							setFormData({
+								...formData,
+								status: e.target.value as typeof formData.status,
+							})
+						}
+						className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
+					>
+						<option value="draft">Draft</option>
+						<option value="published">Published</option>
+						<option value="archived">Archived</option>
+					</select>
+				</div>
 
-        <div className="flex gap-3 pt-4">
-          <button
-            type="submit"
-            disabled={isSubmitting || !formData.title.trim() || imageUploading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {imageUploading
-              ? "Uploading..."
-              : isSubmitting
-                ? "Saving..."
-                : submitButtonText}
-          </button>
+				<div className="flex gap-3 pt-4">
+					<button
+						type="submit"
+						disabled={isSubmitting || !formData.title.trim() || imageUploading}
+						className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						{imageUploading
+							? "Uploading..."
+							: isSubmitting
+								? "Saving..."
+								: submitButtonText}
+					</button>
 
-          {onCancel && (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-            >
-              Cancel
-            </button>
-          )}
+					{onCancel && (
+						<button
+							type="button"
+							onClick={onCancel}
+							className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+						>
+							Cancel
+						</button>
+					)}
 
-          {showDeleteButton && onDelete && (
-            <button
-              type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={isDeleting}
-              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
-            >
-              {isDeleting ? "Deleting..." : isDeletingButtonText}
-            </button>
-          )}
-        </div>
+					{showDeleteButton && onDelete && (
+						<button
+							type="button"
+							onClick={() => setShowDeleteConfirm(true)}
+							disabled={isDeleting}
+							className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
+						>
+							{isDeleting ? "Deleting..." : isDeletingButtonText}
+						</button>
+					)}
+				</div>
 
-        {error && (
-          <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
+				{error && (
+					<div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+						{error}
+					</div>
+				)}
 
-        {deleteError && (
-          <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {deleteError}
-          </div>
-        )}
-      </form>
+				{deleteError && (
+					<div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+						{deleteError}
+					</div>
+				)}
+			</form>
 
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Are you sure you want to delete this post? This action cannot be
-              undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+			{showDeleteConfirm && (
+				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+					<div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+						<h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
+						<p className="text-gray-600 dark:text-gray-300 mb-6">
+							Are you sure you want to delete this post? This action cannot be
+							undone.
+						</p>
+						<div className="flex gap-3 justify-end">
+							<button
+								type="button"
+								onClick={() => setShowDeleteConfirm(false)}
+								className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={handleDelete}
+								className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+							>
+								Delete
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+		</div>
+	);
 }

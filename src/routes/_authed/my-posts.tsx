@@ -36,7 +36,8 @@ function PostsComponent() {
 								>
 									<div className="font-medium mb-1">{post.title}</div>
 									<div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-										{post.status} • {new Date(post.created_at).toLocaleDateString("en-US")}
+										{post.status} •{" "}
+										{new Date(post.created_at).toLocaleDateString("en-US")}
 									</div>
 									<TagsList tags={post.tags || []} className="mb-1" />
 								</Link>

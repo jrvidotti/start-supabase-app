@@ -1,8 +1,8 @@
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import type { Post, PostWithTags } from "~/db";
-import { getSupabaseServerClient } from "~/utils/supabase";
 import { deletePostImage, extractImagePath } from "~/utils/storage";
+import { getSupabaseServerClient } from "~/utils/supabase";
 
 export type PostType = Post;
 
@@ -32,7 +32,8 @@ export const fetchPost = createServerFn({ method: "GET" })
 			throw notFound();
 		}
 
-		const tags = post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [];
+		const tags =
+			post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [];
 		return { ...post, tags } as PostWithTags;
 	});
 
@@ -63,7 +64,8 @@ export const fetchPublicPost = createServerFn({ method: "GET" })
 			throw notFound();
 		}
 
-		const tags = post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [];
+		const tags =
+			post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [];
 		return { ...post, tags } as PostWithTags;
 	});
 
@@ -89,10 +91,12 @@ export const fetchMyPosts = createServerFn({ method: "GET" }).handler(
 			throw new Error("Error fetching posts");
 		}
 
-		return data?.map(post => ({
-			...post,
-			tags: post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || []
-		})) || [] as PostWithTags[];
+		return (
+			data?.map((post) => ({
+				...post,
+				tags: post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [],
+			})) || ([] as PostWithTags[])
+		);
 	},
 );
 
@@ -117,15 +121,25 @@ export const fetchPublicPosts = createServerFn({ method: "GET" }).handler(
 			throw new Error("Error fetching posts");
 		}
 
-		return data?.map(post => ({
-			...post,
-			tags: post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || []
-		})) || [] as PostWithTags[];
+		return (
+			data?.map((post) => ({
+				...post,
+				tags: post.posts_tags?.map((pt: any) => pt.tags).filter(Boolean) || [],
+			})) || ([] as PostWithTags[])
+		);
 	},
 );
 
 export const createPost = createServerFn({ method: "POST" })
-	.validator((d: { title: string; body?: string; status?: string; tags?: string[]; featured_image?: string }) => d)
+	.validator(
+		(d: {
+			title: string;
+			body?: string;
+			status?: string;
+			tags?: string[];
+			featured_image?: string;
+		}) => d,
+	)
 	.handler(async ({ data }) => {
 		console.info("Creating new post...");
 		const supabase = getSupabaseServerClient();
@@ -197,7 +211,14 @@ export const createPost = createServerFn({ method: "POST" })
 
 export const updatePost = createServerFn({ method: "POST" })
 	.validator(
-		(d: { id: string; title?: string; body?: string; status?: string; tags?: string[]; featured_image?: string }) => d,
+		(d: {
+			id: string;
+			title?: string;
+			body?: string;
+			status?: string;
+			tags?: string[];
+			featured_image?: string;
+		}) => d,
 	)
 	.handler(async ({ data }) => {
 		console.info(`Updating post with id ${data.id}...`);
@@ -210,7 +231,8 @@ export const updatePost = createServerFn({ method: "POST" })
 		if (data.title !== undefined) updateData.title = data.title;
 		if (data.body !== undefined) updateData.body = data.body;
 		if (data.status !== undefined) updateData.status = data.status;
-		if (data.featured_image !== undefined) updateData.featured_image = data.featured_image;
+		if (data.featured_image !== undefined)
+			updateData.featured_image = data.featured_image;
 
 		const { data: updatedPost, error } = await supabase
 			.from("posts")

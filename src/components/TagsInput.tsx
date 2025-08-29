@@ -1,6 +1,6 @@
 import * as React from "react";
-import { searchTags } from "~/utils/tags";
 import type { Tag } from "~/db";
+import { searchTags } from "~/utils/tags";
 
 interface TagsInputProps {
 	value: string[];
@@ -23,16 +23,17 @@ export function TagsInput({
 	const suggestionsRef = React.useRef<HTMLDivElement>(null);
 
 	const debouncedSearchTags = React.useMemo(
-		() => debounce(async (term: string) => {
-			try {
-				const results = await searchTags({ data: term });
-				setSuggestions(results.filter(tag => !value.includes(tag.name)));
-			} catch (error) {
-				console.error("Error searching tags:", error);
-				setSuggestions([]);
-			}
-		}, 300),
-		[value]
+		() =>
+			debounce(async (term: string) => {
+				try {
+					const results = await searchTags({ data: term });
+					setSuggestions(results.filter((tag) => !value.includes(tag.name)));
+				} catch (error) {
+					console.error("Error searching tags:", error);
+					setSuggestions([]);
+				}
+			}, 300),
+		[value],
 	);
 
 	React.useEffect(() => {
@@ -51,7 +52,7 @@ export function TagsInput({
 	};
 
 	const removeTag = (tagToRemove: string) => {
-		onChange(value.filter(tag => tag !== tagToRemove));
+		onChange(value.filter((tag) => tag !== tagToRemove));
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -69,14 +70,14 @@ export function TagsInput({
 
 			case "ArrowDown":
 				e.preventDefault();
-				setSelectedIndex(prev => 
-					prev < suggestions.length - 1 ? prev + 1 : prev
+				setSelectedIndex((prev) =>
+					prev < suggestions.length - 1 ? prev + 1 : prev,
 				);
 				break;
 
 			case "ArrowUp":
 				e.preventDefault();
-				setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+				setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
 				break;
 
 			case "Escape":
@@ -163,45 +164,48 @@ export function TagsInput({
 				</div>
 			</div>
 
-			{showSuggestions && (suggestions.length > 0 || inputValue.trim() === "") && (
-				<div
-					ref={suggestionsRef}
-					className="absolute top-full left-0 right-0 z-10 mt-1 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto"
-				>
-					{suggestions.length > 0 ? (
-						<>
-							<div className="px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
-								{inputValue.trim() ? "Matching tags:" : "Available tags:"}
+			{showSuggestions &&
+				(suggestions.length > 0 || inputValue.trim() === "") && (
+					<div
+						ref={suggestionsRef}
+						className="absolute top-full left-0 right-0 z-10 mt-1 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+					>
+						{suggestions.length > 0 ? (
+							<>
+								<div className="px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
+									{inputValue.trim() ? "Matching tags:" : "Available tags:"}
+								</div>
+								{suggestions.map((tag, index) => (
+									<button
+										key={tag.id}
+										type="button"
+										onClick={() => handleSuggestionClick(tag)}
+										className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
+											index === selectedIndex
+												? "bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
+												: "text-gray-900 dark:text-gray-100"
+										}`}
+									>
+										{tag.name}
+									</button>
+								))}
+							</>
+						) : (
+							<div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+								{inputValue.trim()
+									? "No matching tags found. Press Enter to create a new tag."
+									: "No tags available yet."}
 							</div>
-							{suggestions.map((tag, index) => (
-								<button
-									key={tag.id}
-									type="button"
-									onClick={() => handleSuggestionClick(tag)}
-									className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
-										index === selectedIndex
-											? "bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-											: "text-gray-900 dark:text-gray-100"
-									}`}
-								>
-									{tag.name}
-								</button>
-							))}
-						</>
-					) : (
-						<div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-							{inputValue.trim() ? "No matching tags found. Press Enter to create a new tag." : "No tags available yet."}
-						</div>
-					)}
-				</div>
-			)}
+						)}
+					</div>
+				)}
 		</div>
 	);
 }
 
 function debounce<T extends (...args: any[]) => any>(
 	func: T,
-	delay: number
+	delay: number,
 ): (...args: Parameters<T>) => void {
 	let timeoutId: NodeJS.Timeout;
 	return (...args: Parameters<T>) => {
