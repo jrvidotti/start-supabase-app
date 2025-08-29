@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { createServerFn } from "@tanstack/react-start";
-import type * as React from "react";
+import { type ReactNode } from "react";
 import { DefaultCatchBoundary } from "../components/DefaultCatchBoundary";
 import { NotFound } from "../components/NotFound";
 import { ThemeProvider } from "../components/theme-provider";
@@ -134,7 +134,7 @@ function NavigationLoadingBar() {
   );
 }
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootDocument({ children }: { children: ReactNode }) {
   const { user } = Route.useRouteContext();
 
   console.log("user", user);

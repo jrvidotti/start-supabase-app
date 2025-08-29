@@ -19,10 +19,7 @@ export const fetchPost = createServerFn({ method: "GET" })
   .validator((d: string) => d)
   .handler(async ({ data: postId }): Promise<PostWithTags> => {
     console.info(`Fetching post with id ${postId}...`);
-    if (process.env.NODE_ENV === "development") {
-      console.info("fetchPost", "development mode (2s delay)");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
+
     const supabase = getSupabaseServerClient();
 
     const { data: post, error } = await supabase
@@ -59,10 +56,7 @@ export const fetchPublicPost = createServerFn({ method: "GET" })
   .validator((d: string) => d)
   .handler(async ({ data: postId }) => {
     console.info(`Fetching public post with id ${postId}...`);
-    if (process.env.NODE_ENV === "development") {
-      console.info("fetchPublicPost", "development mode (2s delay)");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
+
     const supabase = getSupabaseServerClient();
 
     const { data: post, error } = await supabase
@@ -96,11 +90,6 @@ export const fetchPublicPost = createServerFn({ method: "GET" })
 
 export const fetchMyPosts = createServerFn({ method: "GET" }).handler(
   async () => {
-    if (process.env.NODE_ENV === "development") {
-      console.info("fetchMyPosts", "development mode (2s delay)");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-
     const supabase = getSupabaseServerClient();
     const { data: userData } = await supabase.auth.getUser();
 
@@ -140,11 +129,6 @@ export const fetchMyPosts = createServerFn({ method: "GET" }).handler(
 
 export const countMyPosts = createServerFn({ method: "GET" }).handler(
   async () => {
-    if (process.env.NODE_ENV === "development") {
-      console.info("countMyPosts", "development mode (2s delay)");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-
     const supabase = getSupabaseServerClient();
     const { data: userData } = await supabase.auth.getUser();
 
@@ -169,11 +153,6 @@ export const countMyPosts = createServerFn({ method: "GET" }).handler(
 
 export const fetchPublicPosts = createServerFn({ method: "GET" }).handler(
   async () => {
-    if (process.env.NODE_ENV === "development") {
-      console.info("fetchPublicPosts", "development mode (2s delay)");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-
     const supabase = getSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -210,11 +189,6 @@ export const fetchPublicPosts = createServerFn({ method: "GET" }).handler(
 export const createPost = createServerFn({ method: "POST" })
   .validator((d: PostCreateWithTags) => d)
   .handler(async ({ data }) => {
-    if (process.env.NODE_ENV === "development") {
-      console.info("createPost", "development mode (2s delay)");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-
     console.info("Creating new post...");
     const supabase = getSupabaseServerClient();
     const { data: userData } = await supabase.auth.getUser();
@@ -305,11 +279,6 @@ export const updatePost = createServerFn({ method: "POST" })
     }) => d
   )
   .handler(async ({ data }) => {
-    if (process.env.NODE_ENV === "development") {
-      console.info("updatePost", "development mode (2s delay)");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-
     console.info(`Updating post with id ${data.id}...`);
     const supabase = getSupabaseServerClient();
 
@@ -405,11 +374,6 @@ export const deletePost = createServerFn({ method: "POST" })
   .validator((d: string) => d)
   .handler(async ({ data: postId }) => {
     console.info(`Deleting post with id ${postId}...`);
-
-    if (process.env.NODE_ENV === "development") {
-      console.info("deletePost", "development mode (2s delay)");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
 
     const supabase = getSupabaseServerClient();
 

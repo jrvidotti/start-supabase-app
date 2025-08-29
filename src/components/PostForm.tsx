@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Route } from "~/routes/__root";
 import { uploadImage } from "~/utils/storage";
 import { TagsInput } from "./TagsInput";
 import { Button } from "~/components/ui/button";
