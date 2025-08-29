@@ -171,7 +171,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 										<Link to="/profile" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
 											<Avatar className="h-8 w-8">
 												<AvatarFallback className="bg-primary/10">
-													{user.profile?.name?.[0] || user.email[0].toUpperCase()}
+													{user.profile?.name 
+														? user.profile.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+														: user.email[0].toUpperCase()}
 												</AvatarFallback>
 											</Avatar>
 											<span className="text-sm font-medium">

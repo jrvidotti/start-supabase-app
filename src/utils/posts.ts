@@ -100,6 +100,25 @@ export const fetchMyPosts = createServerFn({ method: "GET" }).handler(
 	},
 );
 
+export const countMyPosts = createServerFn({ method: "GET" }).handler(
+	async () => {
+		const supabase = getSupabaseServerClient();
+		const { data: userData } = await supabase.auth.getUser();
+
+		const { count, error } = await supabase
+			.from("posts")
+			.select("*", { count: "exact", head: true })
+			.eq("user_id", userData?.user?.id);
+
+		if (error) {
+			console.error("Error counting posts:", error);
+			throw new Error("Error counting posts");
+		}
+
+		return count || 0;
+	},
+);
+
 export const fetchPublicPosts = createServerFn({ method: "GET" }).handler(
 	async () => {
 		const supabase = getSupabaseServerClient();
