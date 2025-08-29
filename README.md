@@ -5,6 +5,7 @@ A little demo based on (Tanstack Start Supabase Basic Example)[https://github.co
 ## 🚀 Demo Features
 
 ### Current Features
+
 - **User Authentication** - Signup, login, email confirmation, Google OAuth
 - **Content Management** - Create, read, update, delete posts
 - **Post Status Management** - Draft, published, and archived states
@@ -15,9 +16,10 @@ A little demo based on (Tanstack Start Supabase Basic Example)[https://github.co
 - **Database Migrations** - Version-controlled schema changes
 - **User Profiles** - Extended user information and customization
 - **Image Upload** - Media management and retrieval
+- **Shadcn UI** - Enhanced UI components
 
 ### Future Roadmap
-- **Shadcn UI** - Enhanced UI components
+
 - **Rich Text Editor** - Enhanced content creation experience
 - **Post Search** - Full-text search capabilities
 - **Social Features** - Comments, likes, and user interactions
@@ -25,17 +27,20 @@ A little demo based on (Tanstack Start Supabase Basic Example)[https://github.co
 ## 🛠️ Technology Stack
 
 ### Core Framework
+
 - **[TanStack Start](https://tanstack.com/start)** - Full-stack React framework with file-based routing
 - **[TanStack Router](https://tanstack.com/router)** - Type-safe client and server-side routing
 - **[React 19](https://react.dev/)** - Latest React with concurrent features
 - **[TypeScript](https://www.typescriptlang.org/)** - Strict type safety throughout
 
 ### Backend & Database
+
 - **[Supabase](https://supabase.com/)** - Authentication and PostgreSQL database
 - **[Drizzle ORM](https://orm.drizzle.team/)** - Type-safe database operations
 - **PostgreSQL** - Robust relational database with RLS
 
 ### Styling & UI
+
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first styling framework
 - **Dark Mode Support** - Complete dark/light theme implementation
 - **Responsive Design** - Mobile-first responsive layouts
@@ -45,7 +50,9 @@ A little demo based on (Tanstack Start Supabase Basic Example)[https://github.co
 ### Tables
 
 #### `posts`
+
 Primary content table with Row Level Security
+
 ```sql
 - id: UUID (Primary Key)
 - title: VARCHAR(255) NOT NULL
@@ -57,11 +64,14 @@ Primary content table with Row Level Security
 ```
 
 **RLS Policies:**
+
 - Users can create, read, update, delete their own posts
 - Public can read posts with status = 'published'
 
 #### `tags`
+
 Categorization system for posts
+
 ```sql
 - id: UUID (Primary Key)
 - name: VARCHAR(100) UNIQUE NOT NULL
@@ -71,10 +81,13 @@ Categorization system for posts
 ```
 
 **RLS Policies:**
+
 - Public read and write access (anyone can create/use tags)
 
 #### `posts_tags`
+
 Many-to-many relationship table
+
 ```sql
 - post_id: UUID (Foreign Key to posts)
 - tag_id: UUID (Foreign Key to tags)
@@ -82,7 +95,9 @@ Many-to-many relationship table
 ```
 
 #### `profiles`
+
 Extended user information
+
 ```sql
 - id: UUID (Primary Key)
 - user_id: UUID (Foreign Key to auth.users)
@@ -96,6 +111,7 @@ Extended user information
 ### Route Structure
 
 #### Public Routes
+
 - `/` - Home page with published posts
 - `/posts/[id]` - Individual post view
 - `/login` - User authentication
@@ -104,6 +120,7 @@ Extended user information
 - `/auth/callback` - Email confirmation handler
 
 #### Protected Routes (`_authed/`)
+
 - `/my-posts` - Post management dashboard
 - `/my-posts/new` - Create new post
 - `/my-posts/[postId]` - Edit existing post
@@ -111,11 +128,13 @@ Extended user information
 ### Server Functions
 
 #### Authentication (`src/utils/auth.ts`)
+
 - `loginFn` - Email/password authentication
 - `signupFn` - User registration with profile creation
 - `exchangeCodeFn` - Email confirmation processing
 
 #### Posts (`src/utils/posts.ts`)
+
 - `fetchPost` - Retrieve single post with tags
 - `fetchMyPosts` - Get user's posts for dashboard
 - `fetchPublicPosts` - Get published posts for home page
@@ -124,6 +143,7 @@ Extended user information
 - `deletePost` - Delete post with cascade operations
 
 #### Tags (`src/utils/tags.ts`)
+
 - `searchTags` - Autocomplete search for existing tags
 - `createTag` - Create new tag with slug generation
 - `updatePostTags` - Manage post-tag relationships
@@ -131,14 +151,18 @@ Extended user information
 ### Key Components
 
 #### `PostForm` (`src/components/PostForm.tsx`)
+
 Comprehensive form component for post creation and editing
+
 - Form validation and error handling
 - Tag management with autocomplete
 - Status selection (draft/published/archived)
 - Real-time save indicators
 
 #### `TagsInput` (`src/components/TagsInput.tsx`)
+
 Advanced tag input with search capabilities
+
 - Autocomplete with keyboard navigation
 - Create new tags on-the-fly
 - Visual tag management interface
@@ -146,6 +170,7 @@ Advanced tag input with search capabilities
 ## 🚦 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ and Yarn
 - Supabase account and project
 - PostgreSQL database (via Supabase)
@@ -153,6 +178,7 @@ Advanced tag input with search capabilities
 ### Environment Setup
 
 Create a `.env.local` file with:
+
 ```env
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -165,6 +191,7 @@ VITE_GOOGLE_OAUTH_ENABLED=true
 ### Installation
 
 1. **Clone and install dependencies**
+
 ```bash
 git clone <repository-url>
 cd start-supabase-app
@@ -172,6 +199,7 @@ yarn install
 ```
 
 2. **Set up database**
+
 ```bash
 # Generate migration files from schema
 yarn db:generate
@@ -184,6 +212,7 @@ yarn db:migrate
 ```
 
 3. **Start development server**
+
 ```bash
 yarn dev
 ```
@@ -193,6 +222,7 @@ Visit `http://localhost:3000` to see the application.
 ## 📜 Development Commands
 
 ### Core Development
+
 ```bash
 yarn dev          # Start development server on port 3000
 yarn build        # Build for production (includes TypeScript checking)
@@ -200,6 +230,7 @@ yarn start        # Start production server
 ```
 
 ### Database Management (Drizzle ORM)
+
 ```bash
 yarn db:generate  # Generate SQL migrations from schema changes
 yarn db:push      # Push schema changes directly to database (development)
@@ -208,6 +239,7 @@ yarn db:studio    # Open Drizzle Studio for database management
 ```
 
 ### Code Quality
+
 ```bash
 yarn biome:fix    # Format and fix code issues with Biome
 ```
@@ -249,6 +281,7 @@ To enable Google authentication:
    - Add your site URL to authorized redirect URLs
 
 3. **Environment Variables**
+
    ```env
    VITE_GOOGLE_OAUTH_ENABLED=true
    ```
@@ -261,12 +294,14 @@ To enable Google authentication:
 ## 🎨 UI/UX Features
 
 ### Design System
+
 - **Responsive Layout** - Mobile-first design approach
 - **Dark Mode** - Complete dark/light theme support
 - **Loading States** - Proper feedback for async operations
 - **Error Handling** - User-friendly error messages and boundaries
 
 ### User Experience
+
 - **Real-time Updates** - Optimistic UI updates
 - **Keyboard Navigation** - Full keyboard accessibility
 - **Form Validation** - Client and server-side validation
@@ -275,11 +310,13 @@ To enable Google authentication:
 ## 🔄 Data Flow Patterns
 
 ### Server-Side Rendering
+
 - Initial page load with server-fetched data
 - SEO-friendly content delivery
 - Optimized performance with TanStack Start
 
 ### Client-Side Interactions
+
 - Optimistic updates for better UX
 - Real-time search and filtering
 - Progressive enhancement approach
@@ -287,11 +324,13 @@ To enable Google authentication:
 ## 🧪 Testing & Quality
 
 ### Type Safety
+
 - Strict TypeScript configuration
 - Database schema types generated by Drizzle
 - End-to-end type safety from database to UI
 
 ### Development Tools
+
 - TanStack Router Devtools
 - Hot module replacement
 - Comprehensive error boundaries
@@ -299,6 +338,7 @@ To enable Google authentication:
 ## 📚 Learning Resources
 
 This project demonstrates:
+
 - Modern full-stack TypeScript development
 - Database-first development with type safety
 - Authentication patterns with Supabase
@@ -320,6 +360,7 @@ This project is licensed under the ISC License - see the LICENSE file for detail
 ## 🙏 Acknowledgments
 
 Built with amazing open-source technologies:
+
 - [TanStack](https://tanstack.com/) for the incredible React ecosystem
 - [Supabase](https://supabase.com/) for backend-as-a-service
 - [Drizzle](https://orm.drizzle.team/) for type-safe database operations
