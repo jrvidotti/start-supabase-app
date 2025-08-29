@@ -1,10 +1,14 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { TagsList } from "~/components/TagsList";
+import { PostsSkeleton } from "~/components/PostsSkeleton";
 import { fetchMyPosts } from "../../utils/posts";
 
 export const Route = createFileRoute("/_authed/my-posts")({
 	loader: () => fetchMyPosts(),
 	component: PostsComponent,
+	pendingComponent: PostsSkeleton,
+	pendingMs: 500,
+	pendingMinMs: 300,
 });
 
 function PostsComponent() {

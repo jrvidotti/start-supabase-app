@@ -3,6 +3,7 @@ import { fetchPublicPosts } from "~/utils/posts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { CalendarDays, Image as ImageIcon } from "lucide-react";
+import { HomePageSkeleton } from "~/components/HomePageSkeleton";
 
 export const Route = createFileRoute("/")({
 	beforeLoad: async ({ search }) => {
@@ -19,6 +20,9 @@ export const Route = createFileRoute("/")({
 	},
 	loader: async () => ({ posts: await fetchPublicPosts() }),
 	component: Home,
+	pendingComponent: HomePageSkeleton,
+	pendingMs: 500,
+	pendingMinMs: 300,
 });
 
 function Home() {

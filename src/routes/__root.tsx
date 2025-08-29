@@ -5,6 +5,7 @@ import {
   Link,
   Outlet,
   Scripts,
+  useRouter,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { createServerFn } from "@tanstack/react-start";
@@ -119,6 +120,20 @@ function RootComponent() {
   );
 }
 
+function NavigationLoadingBar() {
+  const router = useRouter();
+  const isLoading = router.state.isLoading;
+
+  if (!isLoading) return null;
+
+  return (
+    <div className="fixed top-0 left-0 right-0 z-50">
+      <div className="h-1 bg-blue-600 animate-pulse"></div>
+      <div className="h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent animate-pulse"></div>
+    </div>
+  );
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { user } = Route.useRouteContext();
 
@@ -145,6 +160,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body>
+        <NavigationLoadingBar />
         <div className="min-h-screen bg-background">
           <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-16 items-center justify-between">

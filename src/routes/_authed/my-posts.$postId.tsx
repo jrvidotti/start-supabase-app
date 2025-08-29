@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { NotFound } from "~/components/NotFound";
 import { PostForm, type PostFormData } from "~/components/PostForm";
+import { PostDetailSkeleton } from "~/components/PostDetailSkeleton";
 import { useMutation } from "~/hooks/useMutation";
 import { deletePost, fetchPost, updatePost } from "~/utils/posts";
 
@@ -13,6 +14,9 @@ export const Route = createFileRoute("/_authed/my-posts/$postId")({
 	loader: ({ params: { postId } }) => fetchPost({ data: postId }),
 	errorComponent: PostErrorComponent,
 	component: PostComponent,
+	pendingComponent: PostDetailSkeleton,
+	pendingMs: 500,
+	pendingMinMs: 300,
 	notFoundComponent: () => {
 		return <NotFound>Post not found</NotFound>;
 	},

@@ -4,8 +4,49 @@ import { getSupabaseServerClient } from "~/utils/supabase";
 // NOTE: Bucket creation and RLS policies are handled through database migrations
 // See drizzle/migrations/0006_storage_rls_policies.sql
 
-// Note: Image upload is handled client-side in PostForm component
-// The authentication context is managed through the authenticated supabase client
+// Upload image to Supabase storage
+export const uploadImage = createServerFn({ method: "POST" })
+  .validator((d: { 
+    base64: string; 
+    fileName: string; 
+    mimeType: string 
+  }) => d)
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+    const { data: userData } = await supabase.auth.getUser();
+    
+    if (!userData?.user?.id) {
+      throw new Error("User not authenticated");
+    }
+    
+    // Convert base64 to buffer
+    const buffer = Buffer.from(data.base64, 'base64');
+    
+    // Generate unique filename
+    const timestamp = Date.now();
+    const fullFileName = `${userData.user.id}/${timestamp}-${data.fileName}`;
+    
+    // Upload to storage
+    const { error } = await supabase.storage
+      .from("post-images")
+      .upload(fullFileName, buffer, {
+        contentType: data.mimeType,
+        cacheControl: "3600",
+        upsert: false
+      });
+      
+    if (error) {
+      console.error("Error uploading image:", error);
+      throw new Error(`Failed to upload image: ${error.message}`);
+    }
+    
+    // Get public URL
+    const { data: publicUrlData } = supabase.storage
+      .from("post-images")
+      .getPublicUrl(fullFileName);
+      
+    return { publicUrl: publicUrlData.publicUrl };
+  });
 
 // Delete image from Supabase storage
 export const deleteImage = createServerFn({ method: "POST" })
