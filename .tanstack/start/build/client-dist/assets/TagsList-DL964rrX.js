@@ -1,1 +1,0 @@
-import{j as n}from"./main-CGeaazTl.js";function x({tags:e,className:a=""}){return!e||e.length===0?null:n.jsx("div",{className:`flex flex-wrap gap-1 ${a}`,children:e.map((r,s)=>n.jsx("span",{className:"inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",children:r.name},r.id||`${r.name}-${s}`))})}export{x as T};
