@@ -5,7 +5,7 @@ A little demo based on (Tanstack Start Supabase Basic Example)[https://github.co
 ## 🚀 Demo Features
 
 ### Current Features
-- **User Authentication** - Signup, login, email confirmation
+- **User Authentication** - Signup, login, email confirmation, Google OAuth
 - **Content Management** - Create, read, update, delete posts
 - **Post Status Management** - Draft, published, and archived states
 - **Tag System** - Create and assign tags to posts with autocomplete
@@ -18,7 +18,6 @@ A little demo based on (Tanstack Start Supabase Basic Example)[https://github.co
 
 ### Future Roadmap
 - **Shadcn UI** - Enhanced UI components
-- **Google Sign-in** - Enhanced authentication experience
 - **Rich Text Editor** - Enhanced content creation experience
 - **Post Search** - Full-text search capabilities
 - **Social Features** - Comments, likes, and user interactions
@@ -158,6 +157,9 @@ Create a `.env.local` file with:
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 DATABASE_URL=your_postgresql_connection_string
+
+# Optional: Google OAuth (leave empty to disable Google sign-in)
+VITE_GOOGLE_OAUTH_ENABLED=true
 ```
 
 ### Installation
@@ -216,9 +218,11 @@ yarn biome:fix    # Format and fix code issues with Biome
    - User provides email, password, and name
    - Email confirmation sent via Supabase Auth
    - User profile created after email verification
+   - Alternative: Google OAuth sign-up (if enabled)
 
 2. **Login Process**
    - Email/password authentication via Supabase
+   - Google OAuth authentication (if enabled)
    - Session stored in HTTP-only cookies
    - User context available throughout application
 
@@ -226,6 +230,33 @@ yarn biome:fix    # Format and fix code issues with Biome
    - `_authed.tsx` guards protected routes
    - Automatic redirect to login for unauthenticated users
    - Server-side session validation on every request
+
+### Google OAuth Setup (Optional)
+
+To enable Google authentication:
+
+1. **Google Cloud Console Setup**
+   - Create a new project in [Google Cloud Console](https://console.cloud.google.com/)
+   - Enable the Google+ API
+   - Create OAuth 2.0 credentials (Web application)
+   - Add authorized redirect URIs:
+     - `https://your-supabase-project.supabase.co/auth/v1/callback`
+
+2. **Supabase Configuration**
+   - Go to Authentication > Providers > Google in your Supabase dashboard
+   - Enable Google provider
+   - Enter your Google Client ID and Client Secret
+   - Add your site URL to authorized redirect URLs
+
+3. **Environment Variables**
+   ```env
+   VITE_GOOGLE_OAUTH_ENABLED=true
+   ```
+
+4. **Test the Setup**
+   - The Google sign-in button will appear on login/signup pages
+   - Users can authenticate with their Google accounts
+   - Profiles are automatically created for OAuth users
 
 ## 🎨 UI/UX Features
 

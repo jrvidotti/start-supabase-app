@@ -1,6 +1,6 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { useMutation } from "../hooks/useMutation";
-import { loginFn } from "../utils/auth";
+import { loginFn, googleAuthFn } from "../utils/auth";
 import { Auth } from "./Auth";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
@@ -20,6 +20,15 @@ export function Login() {
 		},
 	});
 
+	const googleAuthMutation = useMutation({
+		fn: googleAuthFn,
+		onSuccess: async (ctx) => {
+			if (ctx.data?.url) {
+				window.location.href = ctx.data.url;
+			}
+		},
+	});
+
 	return (
 		<Auth
 			actionText="Login"
@@ -34,6 +43,12 @@ export function Login() {
 					},
 				});
 			}}
+			onGoogleAuth={() => {
+				googleAuthMutation.mutate({
+					data: {},
+				});
+			}}
+			googleAuthStatus={googleAuthMutation.status}
 			afterSubmit={
 				<div className="space-y-4">
 					{loginMutation.data && (

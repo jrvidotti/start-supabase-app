@@ -3,96 +3,138 @@ import { ensureProfile, upsertProfile } from "~/utils/profiles";
 import { getSupabaseServerClient } from "~/utils/supabase";
 
 export const loginFn = createServerFn({ method: "POST" })
-	.validator((d: { email: string; password: string }) => d)
-	.handler(async ({ data }) => {
-		const supabase = getSupabaseServerClient();
-		const { error, data: authData } = await supabase.auth.signInWithPassword({
-			email: data.email.trim(),
-			password: data.password,
-		});
-		if (error) {
-			return {
-				error: true,
-				message: error.message,
-			};
-		}
+  .validator((d: { email: string; password: string }) => d)
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+    const { error, data: authData } = await supabase.auth.signInWithPassword({
+      email: data.email.trim(),
+      password: data.password,
+    });
+    if (error) {
+      return {
+        error: true,
+        message: error.message,
+      };
+    }
 
-		await ensureProfile({
-			data: {
-				user_id: authData.user.id,
-			},
-		});
-	});
+    await ensureProfile({
+      data: {
+        user_id: authData.user.id,
+      },
+    });
+  });
 
 export const signupFn = createServerFn({ method: "POST" })
-	.validator(
-		(d: {
-			email: string;
-			password: string;
-			name: string;
-			redirectUrl?: string;
-		}) => d,
-	)
-	.handler(
-		async ({
-			data,
-		}): Promise<{
-			success: boolean;
-			needsConfirmation?: boolean;
-			email?: string;
-			error?: string;
-		}> => {
-			const supabase = getSupabaseServerClient();
-			const { error, data: authData } = await supabase.auth.signUp({
-				email: data.email.trim(),
-				password: data.password,
-			});
-			if (error) {
-				return {
-					success: false,
-					error: error.message,
-				};
-			}
+  .validator(
+    (d: {
+      email: string;
+      password: string;
+      name: string;
+      redirectUrl?: string;
+    }) => d
+  )
+  .handler(
+    async ({
+      data,
+    }): Promise<{
+      success: boolean;
+      needsConfirmation?: boolean;
+      email?: string;
+      error?: string;
+    }> => {
+      const supabase = getSupabaseServerClient();
+      const { error, data: authData } = await supabase.auth.signUp({
+        email: data.email.trim(),
+        password: data.password,
+      });
+      if (error) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
 
-			// Create profile if user was created successfully
-			if (authData.user?.id && data.name) {
-				try {
-					await upsertProfile({
-						data: {
-							user_id: authData.user.id,
-							name: data.name,
-						},
-					});
-				} catch (profileError) {
-					console.error("Error creating profile:", profileError);
-					// Don't fail signup if profile creation fails
-					// Profile will be created on login if missing
-				}
-			}
+      // Create profile if user was created successfully
+      if (authData.user?.id && data.name) {
+        try {
+          await upsertProfile({
+            data: {
+              user_id: authData.user.id,
+              name: data.name,
+            },
+          });
+        } catch (profileError) {
+          console.error("Error creating profile:", profileError);
+          // Don't fail signup if profile creation fails
+          // Profile will be created on login if missing
+        }
+      }
 
-			// Return success status instead of redirecting
-			return {
-				success: true,
-				needsConfirmation: !authData.user?.email_confirmed_at,
-				email: data.email,
-			};
-		},
-	);
+      // Return success status instead of redirecting
+      return {
+        success: true,
+        needsConfirmation: !authData.user?.email_confirmed_at,
+        email: data.email,
+      };
+    }
+  );
+
+export const googleAuthFn = createServerFn({ method: "POST" })
+  .validator((d: { redirectTo?: string }) => d)
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+
+    const appUrl =
+      process.env.NODE_ENV === "development" || !process.env.VITE_APP_URL
+        ? "http://localhost:3000"
+        : process.env.VITE_APP_URL;
+
+    const { data: authData, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: data.redirectTo || `${appUrl}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      return {
+        error: true,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      url: authData.url,
+    };
+  });
 
 export const exchangeCodeFn = createServerFn({ method: "POST" })
-	.validator((d: { code: string }) => d)
-	.handler(async ({ data }) => {
-		const supabase = getSupabaseServerClient();
-		const { error } = await supabase.auth.exchangeCodeForSession(data.code);
+  .validator((d: { code: string }) => d)
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+    const { error, data: authData } =
+      await supabase.auth.exchangeCodeForSession(data.code);
 
-		if (error) {
-			return {
-				error: true,
-				message: error.message,
-			};
-		}
+    if (error) {
+      return {
+        error: true,
+        message: error.message,
+      };
+    }
 
-		return {
-			success: true,
-		};
-	});
+    console.log("exchangeCodeFn", authData);
+
+    // Ensure profile exists for OAuth users
+    if (authData.user?.id) {
+      await ensureProfile({
+        data: {
+          user_id: authData.user.id,
+        },
+      });
+    }
+
+    return {
+      success: true,
+    };
+  });

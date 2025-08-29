@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { signupFn } from "~/utils/auth";
+import { signupFn, googleAuthFn } from "~/utils/auth";
 import { SignupForm } from "../../components/SignupForm";
 import { useMutation } from "../../hooks/useMutation";
 import { Alert, AlertDescription } from "~/components/ui/alert";
@@ -26,6 +26,15 @@ function SignupComp() {
 		},
 	});
 
+	const googleAuthMutation = useMutation({
+		fn: googleAuthFn,
+		onSuccess: async (ctx) => {
+			if (ctx.data?.url) {
+				window.location.href = ctx.data.url;
+			}
+		},
+	});
+
 	return (
 		<SignupForm
 			status={signupMutation.status}
@@ -40,6 +49,12 @@ function SignupComp() {
 					},
 				});
 			}}
+			onGoogleAuth={() => {
+				googleAuthMutation.mutate({
+					data: {},
+				});
+			}}
+			googleAuthStatus={googleAuthMutation.status}
 			afterSubmit={
 				<div className="space-y-4">
 					{signupMutation.data?.error && (
