@@ -1,14 +1,20 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import * as schema from "./schema";
+/*
+Drizzle is not used for database interactions, just for migrations.
+*/
 
-const connectionString = process.env.DATABASE_URL || "";
+// import { drizzle } from "drizzle-orm/postgres-js";
+// import postgres from "postgres";
+// import * as schema from "./schema";
 
-if (!connectionString) {
-	throw new Error("Missing DATABASE_URL environment variable");
-}
+// const connectionString = process.env.DATABASE_URL || "";
 
-const client = postgres(connectionString);
-export const db = drizzle(client, { schema });
+// if (!connectionString) {
+//   console.warn(
+//     "Missing DATABASE_URL environment variable - used for migrations"
+//   );
+// }
+
+// const client = postgres(connectionString);
+// export const db = drizzle(client, { schema });
 
 export * from "./schema";

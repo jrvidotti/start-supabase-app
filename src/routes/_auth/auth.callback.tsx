@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
 import { useMutation } from "../../hooks/useMutation";
 import { exchangeCodeFn } from "../../utils/auth";
@@ -16,7 +15,7 @@ function AuthCallbackComp() {
   const { code } = Route.useSearch();
 
   const exchangeMutation = useMutation({
-    fn: useServerFn(exchangeCodeFn),
+    fn: exchangeCodeFn,
     onSuccess: async (ctx) => {
       if (ctx.data?.success) {
         // Invalidate router to refresh user context
@@ -74,20 +73,16 @@ function AuthCallbackComp() {
     );
   }
 
-  const data = exchangeMutation.data as {
-    error?: string;
-    success?: boolean;
-    message?: string;
-  } | null;
-
-  if (data?.error) {
+  if (exchangeMutation.data?.error) {
     return (
       <div className="fixed inset-0 bg-white dark:bg-black flex items-start justify-center p-8">
         <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg max-w-md">
           <div className="text-center">
             <div className="text-6xl mb-4">❌</div>
             <h1 className="text-2xl font-bold mb-4">Confirmation failed</h1>
-            <p className="text-red-400 mb-4">{data?.message}</p>
+            <p className="text-red-400 mb-4">
+              {exchangeMutation.data?.message}
+            </p>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               The confirmation link may be expired or invalid.
             </p>
@@ -100,7 +95,7 @@ function AuthCallbackComp() {
     );
   }
 
-  if (data?.success) {
+  if (exchangeMutation.data?.success) {
     return (
       <div className="fixed inset-0 bg-white dark:bg-black flex items-start justify-center p-8">
         <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg max-w-md">
