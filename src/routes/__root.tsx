@@ -16,6 +16,7 @@ import { ThemeToggle } from "../components/theme-toggle";
 import { Button } from "../components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Toaster } from "../components/ui/sonner";
+import { Share2 } from "lucide-react";
 import appCss from "../styles/app.css?url";
 import { ensureProfile } from "../utils/profiles";
 import { seo } from "../utils/seo";
@@ -66,9 +67,8 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       ...seo({
-        title:
-          "TanStack Start | Type-Safe, Client-First, Full-Stack React Framework",
-        description: `TanStack Start is a type-safe, client-first, full-stack React framework. `,
+        title: "ShareSpace | Share Your Thoughts and Connect",
+        description: "ShareSpace - A modern platform for sharing posts, connecting with others, and building communities.",
       }),
     ],
     links: [
@@ -148,28 +148,38 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <div className="min-h-screen bg-background">
           <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-16 items-center justify-between">
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-6">
                 <Link
                   to="/"
-                  activeProps={{
-                    className: "font-semibold text-primary",
-                  }}
-                  activeOptions={{ exact: true }}
-                  className="text-lg font-medium hover:text-primary transition-colors"
+                  className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
                 >
-                  Home
+                  <Share2 className="h-6 w-6 text-primary" />
+                  <span className="text-xl font-bold text-foreground">ShareSpace</span>
                 </Link>
-                {user && (
+                
+                <div className="flex items-center space-x-4">
                   <Link
-                    to="/my-posts"
+                    to="/"
                     activeProps={{
                       className: "font-semibold text-primary",
                     }}
-                    className="text-lg font-medium hover:text-primary transition-colors"
+                    activeOptions={{ exact: true }}
+                    className="text-sm font-medium hover:text-primary transition-colors"
                   >
-                    My Posts
+                    Home
                   </Link>
-                )}
+                  {user && (
+                    <Link
+                      to="/my-posts"
+                      activeProps={{
+                        className: "font-semibold text-primary",
+                      }}
+                      className="text-sm font-medium hover:text-primary transition-colors"
+                    >
+                      My Posts
+                    </Link>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center space-x-4">
