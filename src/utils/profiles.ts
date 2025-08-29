@@ -30,8 +30,6 @@ export const upsertProfile = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
 
-    console.log("upsertProfile", data, await supabase.auth.getUser());
-
     const { data: profile, error } = await supabase
       .from("profiles")
       .upsert(
@@ -55,18 +53,19 @@ export const upsertProfile = createServerFn({ method: "POST" })
   });
 
 export const ensureProfile = createServerFn({ method: "POST" })
-  .validator((d: NewProfile) => d)
+  .validator((d: NewProfile & { name?: string }) => d)
   .handler(async ({ data }) => {
-    // Try to get existing profile first
     try {
       const profile = await getProfile({ data: data.user_id });
-      if (profile) {
-        return profile;
-      }
+      return await upsertProfile({
+        data: {
+          user_id: data.user_id,
+          // if profile name exists, don't update name
+          name: profile?.name ? undefined : data.name,
+        },
+      });
     } catch (_error) {
-      // Continue to create profile if not found
+      console.error("Error getting profile:", _error);
+      return null;
     }
-
-    // Create profile if it doesn't exist and we have a name
-    return await upsertProfile({ data });
   });

@@ -123,17 +123,6 @@ export const exchangeCodeFn = createServerFn({ method: "POST" })
       };
     }
 
-    console.log("exchangeCodeFn", authData);
-
-    // Ensure profile exists for OAuth users
-    if (authData.user?.id) {
-      await ensureProfile({
-        data: {
-          user_id: authData.user.id,
-        },
-      });
-    }
-
     return {
       success: true,
     };
