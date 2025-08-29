@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 import {
-	createRootRoute,
-	HeadContent,
-	Link,
-	Outlet,
-	Scripts,
+  createRootRoute,
+  HeadContent,
+  Link,
+  Outlet,
+  Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { createServerFn } from "@tanstack/react-start";
@@ -17,155 +17,142 @@ import { getSupabaseServerClient } from "../utils/supabase";
 import { ensureProfile } from "../utils/profiles";
 
 const fetchUser = createServerFn({ method: "GET" }).handler(async () => {
-	const supabase = getSupabaseServerClient();
-	const { data, error: _error } = await supabase.auth.getUser();
+  const supabase = getSupabaseServerClient();
+  const { data, error: _error } = await supabase.auth.getUser();
 
-	if (!data.user?.email) {
-		return null;
-	}
+  if (!data.user?.email) {
+    return null;
+  }
 
-	// console.log("supabase user", data.user);
+  const profile = await ensureProfile({
+    data: {
+      user_id: data.user.id,
+    },
+  });
 
-	// Try to ensure profile exists for the user
-	// For existing users without profiles, we won't have their name
-	// They'll need to update their profile later if needed
-	let profile = null;
-	try {
-		// Don't pass name since we don't have it for existing users
-		// This will only fetch existing profile, not create a new one
-		profile = await ensureProfile({ 
-			data: { 
-				user_id: data.user.id 
-			} 
-		});
-	} catch (error) {
-		// Profile doesn't exist and we can't create it without a name
-		// This is fine for existing users, they can set up their profile later
-		console.log("No profile found for user:", data.user.id);
-	}
-
-	return {
-		email: data.user.email,
-		profile: profile || null,
-	};
+  return {
+    id: data.user.id,
+    email: data.user.email,
+    profile,
+  };
 });
 
 export const Route = createRootRoute({
-	beforeLoad: async () => {
-		const user = await fetchUser();
+  beforeLoad: async () => {
+    const user = await fetchUser();
 
-		return {
-			user,
-		};
-	},
-	head: () => ({
-		meta: [
-			{
-				charSet: "utf-8",
-			},
-			{
-				name: "viewport",
-				content: "width=device-width, initial-scale=1",
-			},
-			...seo({
-				title:
-					"TanStack Start | Type-Safe, Client-First, Full-Stack React Framework",
-				description: `TanStack Start is a type-safe, client-first, full-stack React framework. `,
-			}),
-		],
-		links: [
-			{ rel: "stylesheet", href: appCss },
-			{
-				rel: "apple-touch-icon",
-				sizes: "180x180",
-				href: "/apple-touch-icon.png",
-			},
-			{
-				rel: "icon",
-				type: "image/png",
-				sizes: "32x32",
-				href: "/favicon-32x32.png",
-			},
-			{
-				rel: "icon",
-				type: "image/png",
-				sizes: "16x16",
-				href: "/favicon-16x16.png",
-			},
-			{ rel: "icon", href: "/favicon.ico" },
-		],
-	}),
-	errorComponent: (props) => {
-		return (
-			<RootDocument>
-				<DefaultCatchBoundary {...props} />
-			</RootDocument>
-		);
-	},
-	notFoundComponent: () => <NotFound />,
-	component: RootComponent,
+    return {
+      user,
+    };
+  },
+  head: () => ({
+    meta: [
+      {
+        charSet: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      },
+      ...seo({
+        title:
+          "TanStack Start | Type-Safe, Client-First, Full-Stack React Framework",
+        description: `TanStack Start is a type-safe, client-first, full-stack React framework. `,
+      }),
+    ],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        href: "/apple-touch-icon.png",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "32x32",
+        href: "/favicon-32x32.png",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "16x16",
+        href: "/favicon-16x16.png",
+      },
+      { rel: "icon", href: "/favicon.ico" },
+    ],
+  }),
+  errorComponent: (props) => {
+    return (
+      <RootDocument>
+        <DefaultCatchBoundary {...props} />
+      </RootDocument>
+    );
+  },
+  notFoundComponent: () => <NotFound />,
+  component: RootComponent,
 });
 
 function RootComponent() {
-	return (
-		<RootDocument>
-			<Outlet />
-		</RootDocument>
-	);
+  return (
+    <RootDocument>
+      <Outlet />
+    </RootDocument>
+  );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-	const { user } = Route.useRouteContext();
+  const { user } = Route.useRouteContext();
 
-	return (
-		<html lang="en">
-			<head>
-				<HeadContent />
-			</head>
-			<body>
-				<div className="p-2 flex gap-2 text-lg">
-					<Link
-						to="/"
-						activeProps={{
-							className: "font-bold",
-						}}
-						activeOptions={{ exact: true }}
-					>
-						Home
-					</Link>{" "}
-					{user && (
-						<Link
-							to="/my-posts"
-							activeProps={{
-								className: "font-bold",
-							}}
-						>
-							My Posts
-						</Link>
-					)}
-					<div className="ml-auto">
-						{user ? (
-							<>
-								<span className="mr-2">
-									{user.profile?.name || user.email}
-								</span>
-								<Link to="/logout">Logout</Link>
-							</>
-						) : (
-							<>
-								<Link to="/login" className="mr-2">
-									Login
-								</Link>
-								<Link to="/signup">Sign Up</Link>
-							</>
-						)}
-					</div>
-				</div>
-				<hr />
-				{children}
-				<TanStackRouterDevtools position="bottom-right" />
-				<Scripts />
-			</body>
-		</html>
-	);
+  return (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <div className="p-2 flex gap-2 text-lg">
+          <Link
+            to="/"
+            activeProps={{
+              className: "font-bold",
+            }}
+            activeOptions={{ exact: true }}
+          >
+            Home
+          </Link>{" "}
+          {user && (
+            <Link
+              to="/my-posts"
+              activeProps={{
+                className: "font-bold",
+              }}
+            >
+              My Posts
+            </Link>
+          )}
+          <div className="ml-auto">
+            {user ? (
+              <>
+                <Link to="/profile" className="mr-2 hover:underline">
+                  {user.profile?.name || user.email}
+                </Link>
+                <Link to="/logout">Logout</Link>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="mr-2">
+                  Login
+                </Link>
+                <Link to="/signup">Sign Up</Link>
+              </>
+            )}
+          </div>
+        </div>
+        <hr />
+        {children}
+        <TanStackRouterDevtools position="bottom-right" />
+        <Scripts />
+      </body>
+    </html>
+  );
 }
