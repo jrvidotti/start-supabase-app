@@ -2420,6 +2420,17 @@ base64-js@^1.3.1:
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
+bin-links@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/bin-links/-/bin-links-5.0.0.tgz#2b0605b62dd5e1ddab3b92a3c4e24221cae06cca"
+  integrity sha512-sdleLVfCjBtgO5cNjA2HVRvWBJAHs4zwenaCPMNJAJU0yNxpzj80IpjOIimkpkr+mhlA+how5poQtt53PygbHA==
+  dependencies:
+    cmd-shim "^7.0.0"
+    npm-normalize-package-bin "^4.0.0"
+    proc-log "^5.0.0"
+    read-cmd-shim "^5.0.0"
+    write-file-atomic "^6.0.0"
+
 binary-extensions@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.3.0.tgz#f6e14a97858d327252200242d4ccfe522c445522"
@@ -2635,6 +2646,11 @@ cluster-key-slot@^1.1.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/cluster-key-slot/-/cluster-key-slot-1.1.2.tgz#88ddaa46906e303b5de30d3153b7d9fe0a0c19ac"
   integrity sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==
+
+cmd-shim@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/cmd-shim/-/cmd-shim-7.0.0.tgz#23bcbf69fff52172f7e7c02374e18fb215826d95"
+  integrity sha512-rtpaCbr164TPPh+zFdkWpCyZuKkjpAzODfaZCf/SVJZzJN+4bHQb/LP3Jzq5/+84um3XXY8r548XiWKSborwVw==
 
 color-convert@^1.9.3:
   version "1.9.3"
@@ -3735,7 +3751,7 @@ http-shutdown@^1.2.2:
   resolved "https://registry.yarnpkg.com/http-shutdown/-/http-shutdown-1.2.2.tgz#41bc78fc767637c4c95179bc492f312c0ae64c5f"
   integrity sha512-S9wWkJ/VSY9/k4qcjG318bqJNruzE4HySUhFYknwmu6LBP97KLLfwNf+n4V1BHurvFNkSKLFnK/RsuUnRTf9Vw==
 
-https-proxy-agent@^7.0.5:
+https-proxy-agent@^7.0.2, https-proxy-agent@^7.0.5:
   version "7.0.6"
   resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-7.0.6.tgz#da8dfeac7da130b05c2ba4b59c9b6cd66611a6b9"
   integrity sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==
@@ -4427,7 +4443,7 @@ node-fetch@^2.6.7:
   dependencies:
     whatwg-url "^5.0.0"
 
-node-fetch@^3.0.0:
+node-fetch@^3.0.0, node-fetch@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-3.3.2.tgz#d1e889bacdf733b4ff3b2b243eb7a12866a0b78b"
   integrity sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==
@@ -4495,6 +4511,11 @@ normalize-range@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/normalize-range/-/normalize-range-0.1.2.tgz#2d10c06bdfd312ea9777695a4d28439456b75942"
   integrity sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==
+
+npm-normalize-package-bin@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/npm-normalize-package-bin/-/npm-normalize-package-bin-4.0.0.tgz#df79e70cd0a113b77c02d1fe243c96b8e618acb1"
+  integrity sha512-TZKxPvItzai9kN9H/TkmCtx/ZN/hvr3vUycjlfmH0ootY9yFBzNOpiXAdIn1Iteqsvk4lQn6B5PTrt+n6h8k/w==
 
 npm-run-path@^5.1.0:
   version "5.3.0"
@@ -4913,6 +4934,11 @@ pretty-bytes@^6.1.1:
   resolved "https://registry.yarnpkg.com/pretty-bytes/-/pretty-bytes-6.1.1.tgz#38cd6bb46f47afbf667c202cfc754bffd2016a3b"
   integrity sha512-mQUvGU6aUFQ+rNvTIAcZuWGRT9a6f6Yrg9bHs4ImKF+HZCEK+plBvnAZYSIQztknZF2qnzNtr6F8s0+IuptdlQ==
 
+proc-log@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/proc-log/-/proc-log-5.0.0.tgz#e6c93cf37aef33f835c53485f314f50ea906a9d8"
+  integrity sha512-Azwzvl90HaF0aCz1JrDdXQykFakSSNPaPoiZ9fm5qJIMHioDZEi7OAdRwSm6rSoPtY3Qutnm3L7ogmg3dc+wbQ==
+
 process-nextick-args@~2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
@@ -5033,6 +5059,11 @@ read-cache@^1.0.0:
   integrity sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==
   dependencies:
     pify "^2.3.0"
+
+read-cmd-shim@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/read-cmd-shim/-/read-cmd-shim-5.0.0.tgz#6e5450492187a0749f6c80dcbef0debc1117acca"
+  integrity sha512-SEbJV7tohp3DAAILbEMPXavBjAnMN0tVnh4+9G8ihV4Pq3HYF9h8QNez9zkJ1ILkv9G2BjdzwctznGZXgu/HGw==
 
 read-package-up@^11.0.0:
   version "11.0.0"
@@ -5588,6 +5619,16 @@ sucrase@^3.35.0:
     pirates "^4.0.1"
     ts-interface-checker "^0.1.9"
 
+supabase@^2.39.2:
+  version "2.39.2"
+  resolved "https://registry.yarnpkg.com/supabase/-/supabase-2.39.2.tgz#ce9b6c239e61409499fffac9022dcab4855ff7a2"
+  integrity sha512-/LDPMDIDmuDwj3UsKVw+wA+uHF7QhEF8xgJnKpnk1vqVdr+lA6xRSwWQzgaNuwPj5YPt6+78JKp+wzKziTsRVw==
+  dependencies:
+    bin-links "^5.0.0"
+    https-proxy-agent "^7.0.2"
+    node-fetch "^3.3.2"
+    tar "7.4.3"
+
 supports-color@^10.0.0:
   version "10.2.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-10.2.0.tgz#4e2ff2704883c99d95ba659ac5e702f06e12e8ed"
@@ -5645,7 +5686,7 @@ tar-stream@^3.0.0:
     fast-fifo "^1.2.0"
     streamx "^2.15.0"
 
-tar@^7.4.0:
+tar@7.4.3, tar@^7.4.0:
   version "7.4.3"
   resolved "https://registry.yarnpkg.com/tar/-/tar-7.4.3.tgz#88bbe9286a3fcd900e94592cda7a22b192e80571"
   integrity sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw==

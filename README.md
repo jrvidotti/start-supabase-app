@@ -209,6 +209,9 @@ yarn db:push
 
 # Or run migrations (for production)
 yarn db:migrate
+
+# Generate Supabase types from schema
+yarn supabase:gen
 ```
 
 3. **Start development server**
@@ -236,6 +239,7 @@ yarn db:generate  # Generate SQL migrations from schema changes
 yarn db:push      # Push schema changes directly to database (development)
 yarn db:migrate   # Run pending migrations (production)
 yarn db:studio    # Open Drizzle Studio for database management
+yarn supabase:gen # Generate Supabase types from schema
 ```
 
 ### Code Quality

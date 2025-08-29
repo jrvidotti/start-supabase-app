@@ -1,6 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
-import type { NewProfile, Profile } from "~/db";
 import { getSupabaseServerClient } from "~/utils/supabase";
+import { Database } from "~/utils/supabase-types.gen";
+
+export type ProfileUpsert =
+  Database["public"]["Tables"]["profiles"]["Update"] & {
+    user_id: string;
+  };
 
 export const getProfile = createServerFn({ method: "GET" })
   .validator((d: string) => d)
@@ -8,6 +13,7 @@ export const getProfile = createServerFn({ method: "GET" })
     const supabase = getSupabaseServerClient();
 
     const { data: profile, error } = await supabase
+      .schema("public")
       .from("profiles")
       .select("*")
       .eq("user_id", userId)
@@ -22,15 +28,16 @@ export const getProfile = createServerFn({ method: "GET" })
       throw new Error("Error fetching profile");
     }
 
-    return profile as Profile;
+    return profile;
   });
 
 export const upsertProfile = createServerFn({ method: "POST" })
-  .validator((d: NewProfile) => d)
+  .validator((d: ProfileUpsert) => d)
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
 
     const { data: profile, error } = await supabase
+      .schema("public")
       .from("profiles")
       .upsert(
         {
@@ -49,18 +56,17 @@ export const upsertProfile = createServerFn({ method: "POST" })
       throw new Error("Error upserting profile");
     }
 
-    return profile as Profile;
+    return profile;
   });
 
 export const ensureProfile = createServerFn({ method: "POST" })
-  .validator((d: NewProfile & { name?: string }) => d)
+  .validator((d: ProfileUpsert) => d)
   .handler(async ({ data }) => {
     try {
       const profile = await getProfile({ data: data.user_id });
       return await upsertProfile({
         data: {
           user_id: data.user_id,
-          // if profile name exists, don't update name
           name: profile?.name ? undefined : data.name,
         },
       });
