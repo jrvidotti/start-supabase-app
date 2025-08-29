@@ -101,6 +101,31 @@ export const googleAuthFn = createServerFn({ method: "POST" })
     };
   });
 
+export const azureAuthFn = createServerFn({ method: "POST" })
+  .validator((d: { redirectTo?: string }) => d)
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+
+    const { data: authData, error } = await supabase.auth.signInWithOAuth({
+      provider: "azure",
+      options: {
+        scopes: "email",
+      },
+    });
+
+    if (error) {
+      return {
+        error: true,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      url: authData.url,
+    };
+  });
+
 export const exchangeCodeFn = createServerFn({ method: "POST" })
   .validator((d: { code: string }) => d)
   .handler(async ({ data }) => {
