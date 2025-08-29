@@ -79,37 +79,13 @@ export const signupFn = createServerFn({ method: "POST" })
     }
   );
 
-const getURL = () => {
-  let url =
-    process.env.VITE_SITE_URL ?? // Set this to your site URL in production env.
-    process.env.VERCEL_URL ?? // Automatically set by Vercel.
-    "http://localhost:3000/";
-
-  // Make sure to include `https://` when not localhost.
-  url = url.startsWith("http") ? url : `https://${url}`;
-
-  // Make sure to include a trailing `/`.
-  url = url.endsWith("/") ? url : `${url}/`;
-
-  return url;
-};
-
 export const googleAuthFn = createServerFn({ method: "POST" })
   .validator((d: { redirectTo?: string }) => d)
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
 
-    console.log("googleAuthFn data", data);
-
-    const redirectTo = data.redirectTo || getURL();
-
-    console.log("googleAuthFn redirectTo", redirectTo);
-
     const { data: authData, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo,
-      },
     });
 
     if (error) {
@@ -129,8 +105,7 @@ export const exchangeCodeFn = createServerFn({ method: "POST" })
   .validator((d: { code: string }) => d)
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
-    const { error, data: authData } =
-      await supabase.auth.exchangeCodeForSession(data.code);
+    const { error } = await supabase.auth.exchangeCodeForSession(data.code);
 
     if (error) {
       return {

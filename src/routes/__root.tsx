@@ -14,7 +14,7 @@ import { NotFound } from "../components/NotFound";
 import { ThemeProvider } from "../components/theme-provider";
 import { ThemeToggle } from "../components/theme-toggle";
 import { Button } from "../components/ui/button";
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Toaster } from "../components/ui/sonner";
 import appCss from "../styles/app.css?url";
 import { ensureProfile } from "../utils/profiles";
@@ -30,14 +30,13 @@ const fetchUser = createServerFn({ method: "GET" }).handler(async () => {
   }
 
   // Extract name from user metadata (for OAuth providers like Google)
-  console.log("fetchUser user", data.user);
-  const nameFromMetadata =
-    data.user.user_metadata?.full_name || data.user.user_metadata?.name;
+  const name = data.user.user_metadata?.full_name as string | undefined;
+  const avatarUrl = data.user.user_metadata?.avatar_url as string | undefined;
 
   const profile = await ensureProfile({
     data: {
       user_id: data.user.id,
-      name: nameFromMetadata,
+      name: name,
     },
   });
 
@@ -45,6 +44,7 @@ const fetchUser = createServerFn({ method: "GET" }).handler(async () => {
     id: data.user.id,
     email: data.user.email,
     profile,
+    avatarUrl,
   };
 });
 
@@ -122,6 +122,8 @@ function RootComponent() {
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { user } = Route.useRouteContext();
 
+  console.log("user", user);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -179,6 +181,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                       className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
                     >
                       <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.avatarUrl} />
                         <AvatarFallback className="bg-primary/10">
                           {user.profile?.name
                             ? user.profile.name
