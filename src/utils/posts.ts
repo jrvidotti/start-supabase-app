@@ -1,6 +1,6 @@
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { deletePostImage, extractImagePath } from "~/utils/storage";
+import { deleteImage, extractImagePath } from "~/utils/storage";
 import { getSupabaseServerClient } from "~/utils/supabase";
 import { Database } from "~/utils/supabase-types.gen";
 
@@ -12,6 +12,8 @@ export type PostWithTags = Post & {
 type PostCreateWithTags = Database["public"]["Tables"]["posts"]["Insert"] & {
   tags?: string[];
 };
+
+const POSTS_BUCKET_NAME = "post-images";
 
 export const fetchPost = createServerFn({ method: "GET" })
   .validator((d: string) => d)
@@ -400,8 +402,13 @@ export const deletePost = createServerFn({ method: "POST" })
     // Delete associated image if exists
     if (existingPost?.featured_image) {
       try {
-        const imagePath = extractImagePath(existingPost.featured_image);
-        await deletePostImage({ data: { imagePath } });
+        const imagePath = extractImagePath(
+          existingPost.featured_image,
+          POSTS_BUCKET_NAME
+        );
+        await deleteImage({
+          data: { imagePath, bucketName: POSTS_BUCKET_NAME },
+        });
       } catch (imageError) {
         console.error("Error deleting associated image:", imageError);
         // Don't fail the post deletion if image deletion fails
