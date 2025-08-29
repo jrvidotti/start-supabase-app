@@ -7,7 +7,7 @@ export const loginFn = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		const supabase = getSupabaseServerClient();
 		const { error, data: authData } = await supabase.auth.signInWithPassword({
-			email: data.email,
+			email: data.email.trim(),
 			password: data.password,
 		});
 		if (error) {
@@ -44,7 +44,7 @@ export const signupFn = createServerFn({ method: "POST" })
 		}> => {
 			const supabase = getSupabaseServerClient();
 			const { error, data: authData } = await supabase.auth.signUp({
-				email: data.email,
+				email: data.email.trim(),
 				password: data.password,
 			});
 			if (error) {

@@ -29,7 +29,7 @@ export function Login() {
 
 				loginMutation.mutate({
 					data: {
-						email: formData.get("email") as string,
+						email: (formData.get("email") as string).trim(),
 						password: formData.get("password") as string,
 					},
 				});

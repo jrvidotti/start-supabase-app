@@ -34,9 +34,9 @@ function SignupComp() {
 
 				signupMutation.mutate({
 					data: {
-						email: formData.get("email") as string,
+						email: (formData.get("email") as string).trim(),
 						password: formData.get("password") as string,
-						name: formData.get("name") as string,
+						name: (formData.get("name") as string).trim(),
 					},
 				});
 			}}
